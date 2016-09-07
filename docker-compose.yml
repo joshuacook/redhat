@@ -1,0 +1,55 @@
+jupyter:
+  build: docker/jupyter
+  restart: always
+  links:
+    - redis
+    - mongo
+  volumes:
+    - .:/home/jovyan/work
+  ports:
+    - 8003:8888
+
+mongo:
+  image: mongo
+  volumes_from:
+    - mongodata
+
+mongodata:
+  image: mongo
+  command: echo 'Data Container for MongoDB'
+  volumes:
+    - /data/mongo
+
+redis:
+  image: redis
+  volumes_from:
+    - redisdata
+
+redisdata:
+  image: redis
+  command: echo 'Data Container for Redis'
+  volumes:
+    - /data/redis
+
+rq:
+  build: docker/python
+  links:
+    - redis
+    - mongo
+  restart: always
+  entrypoint: ["rq", "worker", "-c", "lib.conf.rq_settings"]
+  volumes:
+    - .:/usr/src/app
+
+webserver:
+  build: docker/python
+  restart: always
+  links:
+    - redis
+    - mongo
+  volumes:
+    - .:/usr/src/app
+  ports:
+    - 8002:8000
+  entrypoint: ["python", "-m", "main"] 
+
