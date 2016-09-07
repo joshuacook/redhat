@@ -16,8 +16,8 @@ from lib.conf import rq_dashboard_settings
 from lib.controllers.rq_dashboard_controller import rq_dashboard_blueprint
 
 APP = Flask(__name__)
-MONGO = MongoClient(environ['MONGO_PORT_27017_TCP_ADDR'], 27017)
-DB = MONGO.database['dist_sys']
+# MONGO = MongoClient(environ['MONGO_PORT_27017_TCP_ADDR'], 27017)
+# DB = MONGO.database['dist_sys']
 REDIS = StrictRedis(host='redis')
 Q = Queue(connection=REDIS)
 

@@ -3,22 +3,25 @@ jupyter:
   restart: always
   links:
     - redis
-    - mongo
+    - postgres
   volumes:
     - .:/home/jovyan/work
   ports:
     - 8003:8888
 
-mongo:
-  image: mongo
-  volumes_from:
-    - mongodata
-
-mongodata:
-  image: mongo
-  command: echo 'Data Container for MongoDB'
+postgres:
+  build: docker/postgres
   volumes:
-    - /data/mongo
+    - .:/home
+  volumes_from:
+    - postgresdata
+
+postgresdata:
+  image: postgres
+  command: echo 'Data Container for PostgresDB'
+  volumes:
+    - /var/lib/postgresql
+    - /data/postgres
 
 redis:
   image: redis
@@ -35,7 +38,7 @@ rq:
   build: docker/python
   links:
     - redis
-    - mongo
+    - postgres
   restart: always
   entrypoint: ["rq", "worker", "-c", "lib.conf.rq_settings"]
   volumes:
@@ -46,7 +49,7 @@ webserver:
   restart: always
   links:
     - redis
-    - mongo
+    - postgres
   volumes:
     - .:/usr/src/app
   ports:

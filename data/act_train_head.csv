@@ -1,0 +1,10 @@
+people_id,activity_id,date,activity_category,char_1,char_2,char_3,char_4,char_5,char_6,char_7,char_8,char_9,char_10,outcome
+ppl_100,act2_1734928,2023-08-26,type 4,,,,,,,,,,type 76,0
+ppl_100,act2_2434093,2022-09-27,type 2,,,,,,,,,,type 1,0
+ppl_100,act2_3404049,2022-09-27,type 2,,,,,,,,,,type 1,0
+ppl_100,act2_3651215,2023-08-04,type 2,,,,,,,,,,type 1,0
+ppl_100,act2_4109017,2023-08-26,type 2,,,,,,,,,,type 1,0
+ppl_100,act2_898576,2023-08-04,type 4,,,,,,,,,,type 1727,0
+ppl_100002,act2_1233489,2022-11-23,type 2,,,,,,,,,,type 1,1
+ppl_100002,act2_1623405,2022-11-23,type 2,,,,,,,,,,type 1,1
+ppl_100003,act2_1111598,2023-02-07,type 2,,,,,,,,,,type 1,1

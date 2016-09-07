@@ -1,4 +1,4 @@
-DIRNAME=redhat 
+DIRNAME=redhat
 
 default: build up
 
@@ -19,6 +19,9 @@ bash_webserver:
 
 interface:
 	docker exec -it $(DIRNAME)_webserver_1 python -m lib.app.interface
+
+postgres:
+	docker exec -it $(DIRNAME)_postgres_1 psql postgres postgres 
 
 mongo:
 	docker exec -it $(DIRNAME)_mongo_1 mongo
