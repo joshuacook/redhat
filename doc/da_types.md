@@ -1,0 +1,13 @@
+# coding: utf-8
+[('act_category' 
+('act_char_1'
+('act_char_2'
+('act_char_3'
+('act_char_4'
+('act_char_5'
+('act_char_6'
+('act_char_7'
+('act_char_8'
+('act_char_9'
+('act_char_10'
+('act_outcome'
