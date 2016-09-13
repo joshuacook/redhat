@@ -1,26 +1,43 @@
 # Capstone Project
 ## Machine Learning Engineer Nanodegree
-Joe Udacity  
-December 31st, 2050
+Joshua Cook  
+September 2016
 
 ## I. Definition
-_(approx. 1-2 pages)_
 
 ### Project Overview
-In this section, look to provide a high-level overview of the project in layman’s terms. Questions to ask yourself when writing this section:
-- _Has an overview of the project been provided, such as the problem domain, project origin, and related datasets or input data?_
-- _Has enough background information been given so that an uninformed reader would understand the problem domain and following problem statement?_
+The purpose of this project is to solve a Kaggle competition using neural networks of varying complexities. The [competition](https://www.kaggle.com/c/predicting-red-hat-business-value) in question is sponsored by Red Hat. Given situational and customer information the goal is to protect customer behavior. This project will use these two data sources and neural network reinforcement learning techniques to prepare an algorithm capable of predicting outcomes against a third situational data source.
+
+Data is provided in the form of two separate data sets encoded as CSV:
+
+- `people.csv`
+- `act_train.csv`
+
+The third set is `act_test.csv`.
+
+The action (`act_train.csv`) table makes reference to the people (`people.csv`) table. Beyond this, the sets has been scrubbed of any domain specific knowledge. Rather attributes are referred to generically as `char_1`, `char_2`, etc. As such the competition presents an interesting challenge in which domain knowledge is completely useless. The competition is in essence a "pure machine learning problem".
+
 
 ### Problem Statement
-In this section, you will want to clearly define the problem that you are trying to solve, including the strategy (outline of tasks) you will use to achieve the desired solution. You should also thoroughly discuss what the intended solution will be for this problem. Questions to ask yourself when writing this section:
-- _Is the problem statement clearly defined? Will the reader understand what you are expecting to solve?_
-- _Have you thoroughly discussed how you will attempt to solve the problem?_
-- _Is an anticipated solution clearly defined? Will the reader understand what results you are looking for?_
+
+In this Kaggle competition, Red Hat seeks an optimal algorithm for using information about a given action and information about a customer to predict the customer's behavior with regard to that action. A completed product will take the form of a csv with two items per row - an `action_id` from the test set, and a predicted outcome from the set $(0,1)$.
+
+I am going to take the following approach to completing this task:
+
+1. Seed a PostgreSQL database with the three csv files. 
+1. One-Hot Encode the data and write this data to a separate table
+1. Pull rows from the One-Hot Encoded table to pass through a Reinforcement Learner
+1. Create, Update, and Store the parameters of the Reinforcement Learner
+1. Use the Reinforcement Learner to run a set of predictions on Test Data. 
+
+Note that while the Kaggle Challenge includes a set of test-data, for the purposes of this study we will be holding a separate test set aside that we are able to run our own local accuracy metrics. 
 
 ### Metrics
-In this section, you will need to clearly define the metrics or calculations you will use to measure performance of a model or result in your project. These calculations and metrics should be justified based on the characteristics of the problem and problem domain. Questions to ask yourself when writing this section:
-- _Are the metrics you’ve chosen to measure the performance of your models clearly discussed and defined?_
-- _Have you provided reasonable justification for the metrics chosen based on the problem and solution?_
+The quality of a solution to this task will be measured using the following test error metric
+
+$$\text{Ave}(I(y_i\neq\hat{y}_i))$$
+
+Here, $I$ is an indicator function which yields 0 if the predicted outcome ($\hat{y}_i$) matches the actual outcome ($y_i$). While the size of the dataset (over 2 million rows in the action set) makes this problem atypical, it is at the end of the day, a binary classifcation problem. As such this simple metric is sufficient to measure our accuracy. 
 
 
 ## II. Analysis
