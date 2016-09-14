@@ -44,6 +44,95 @@ Here, $I$ is an indicator function which yields 0 if the predicted outcome ($\ha
 _(approx. 2-4 pages)_
 
 ### Data Exploration
+
+The data to be used here consists of three datasets:
+
+- `people.csv`
+- `act_train.csv`
+- `act_test.csv`
+
+The structure of these datasets has been identified in order to prepare tables in our database to hold the data. The full structure can be viewed in the seeding file [here](https://github.com/joshuacook/redhat/blob/master/docker/postgres/tables.sql). To summarize the data, we can say this about each table. 
+
+#### `people`
+primary key people_id
+1 text group
+9 text characteristics
+28 boolean characteristics
+1 float characteristic
+1 date
+
+##### unique counts for each column
+|: column :|: count :| 
+|----------|---------|
+people_id` | 189118 |
+| `ppl_char_1` | 2 |
+| `ppl_group_1` | 34224 |
+| `ppl_char_2` | 3 |
+| `ppl_date` | 1196 |
+| `ppl_char_3` | 43 |
+| `ppl_char_4` | 25 |
+| `ppl_char_5` | 9 |
+| `ppl_char_6` | 7 |
+| `ppl_char_7` | 25 |
+| `ppl_char_8` | 8 |
+| `ppl_char_9` | 9 |
+| `ppl_char_10` | 2 |
+| `ppl_char_11` | 2 |
+| `ppl_char_12` | 2 |
+| `ppl_char_13` | 2 |
+| `ppl_char_14` | 2 |
+| `ppl_char_15` | 2 |
+| `ppl_char_16` | 2 |
+| `ppl_char_17` | 2 |
+| `ppl_char_18` | 2 |
+| `ppl_char_19` | 2 |
+| `ppl_char_20` | 2 |
+| `ppl_char_21` | 2 |
+| `ppl_char_22` | 2 |
+| `ppl_char_23` | 2 |
+| `ppl_char_24` | 2 |
+| `ppl_char_25` | 2 |
+| `ppl_char_26` | 2 |
+| `ppl_char_27` | 2 |
+| `ppl_char_28` | 2 |
+| `ppl_char_29` | 2 |
+| `ppl_char_30` | 2 |
+| `ppl_char_31` | 2 |
+| `ppl_char_32` | 2 |
+| `ppl_char_33` | 2 |
+| `ppl_char_34` | 2 |
+| `ppl_char_35` | 2 |
+| `ppl_char_36` | 2 |
+| `ppl_char_37` | 2 |
+| `ppl_char_38` | 101 |
+
+#### `action`
+foreign key people id 
+primary key action_id 
+10 text characteristics
+1 text category
+1 date
+1 boolean outcome
+
+##### unique counts for each column
+|: column :|: count :| 
+|----------|---------|
+| `people_id` | 189118 |
+| `act_id` | 2695978 |
+| `act_date` | 411 |
+| `act_category` | 7 |
+| `act_char_1` | 51 |
+| `act_char_2` | 32 |
+| `act_char_3` | 11 |
+| `act_char_4` | 7 |
+| `act_char_5` | 7 |
+| `act_char_6` | 5 |
+| `act_char_7` | 8 |
+| `act_char_8` | 18 |
+| `act_char_9` | 19 |
+| `act_char_10` | 6969 |
+| `act_outcome` | 2 |
+
 In this section, you will be expected to analyze the data you are using for the problem. This data can either be in the form of a dataset (or datasets), input data (or input files), or even an environment. The type of data should be thoroughly described and, if possible, have basic statistics and information presented (such as discussion of input features or defining characteristics about the input or environment). Any abnormalities or interesting qualities about the data that may need to be addressed have been identified (such as features that need to be transformed or the possibility of outliers). Questions to ask yourself when writing this section:
 - _If a dataset is present for this problem, have you thoroughly discussed certain features about the dataset? Has a data sample been provided to the reader?_
 - _If a dataset is present for this problem, are statistics about the dataset calculated and reported? Have any relevant results from this calculation been discussed?_
