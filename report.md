@@ -51,6 +51,15 @@ The data to be used here consists of three datasets:
 - `act_train.csv` [sample](https://github.com/joshuacook/redhat/blob/master/data/act_train_head.csv)
 - `act_test.csv` [sample](https://github.com/joshuacook/redhat/blob/master/data/act_test_head.csv)
 
+We will do the following to analyze the datasets.
+
+1. define the basic structure - rows, columns, data types
+1. identify unique labels for each column and the counts for each label
+1. identify duplicate records, if they exist
+1. search for NULL data
+1. run [`AGGREGATE HISTOGRAM`](https://wiki.postgresql.org/wiki/Aggregate_Histogram)
+
+
 The structure of these datasets has been identified in order to prepare tables in our database to hold the data. The full structure can be viewed in the seeding file [here](https://github.com/joshuacook/redhat/blob/master/docker/postgres/tables.sql). 
 Samples 
 
