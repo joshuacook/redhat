@@ -47,64 +47,70 @@ _(approx. 2-4 pages)_
 
 The data to be used here consists of three datasets:
 
-- `people.csv`
-- `act_train.csv`
-- `act_test.csv`
+- `people.csv` [sample](https://github.com/joshuacook/redhat/blob/master/data/people_head.csv)
+- `act_train.csv` [sample](https://github.com/joshuacook/redhat/blob/master/data/act_train_head.csv)
+- `act_test.csv` [sample](https://github.com/joshuacook/redhat/blob/master/data/act_test_head.csv)
 
-The structure of these datasets has been identified in order to prepare tables in our database to hold the data. The full structure can be viewed in the seeding file [here](https://github.com/joshuacook/redhat/blob/master/docker/postgres/tables.sql). To summarize the data, we can say this about each table. 
+The structure of these datasets has been identified in order to prepare tables in our database to hold the data. The full structure can be viewed in the seeding file [here](https://github.com/joshuacook/redhat/blob/master/docker/postgres/tables.sql). 
+Samples 
+
+To summarize the data, we can say this about each table. 
 
 #### `people`
-primary key people_id
-1 text group
+- `people_id` (primary key)
+- 1 text group
 9 text characteristics
-28 boolean characteristics
+28 boolean characteristics *MEAN*
 1 float characteristic
 1 date
 
-##### unique counts for each column
-|: column :|: count :| 
-|----------|---------|
-people_id` | 189118 |
-| `ppl_char_1` | 2 |
-| `ppl_group_1` | 34224 |
-| `ppl_char_2` | 3 |
-| `ppl_date` | 1196 |
-| `ppl_char_3` | 43 |
-| `ppl_char_4` | 25 |
-| `ppl_char_5` | 9 |
-| `ppl_char_6` | 7 |
-| `ppl_char_7` | 25 |
-| `ppl_char_8` | 8 |
-| `ppl_char_9` | 9 |
-| `ppl_char_10` | 2 |
-| `ppl_char_11` | 2 |
-| `ppl_char_12` | 2 |
-| `ppl_char_13` | 2 |
-| `ppl_char_14` | 2 |
-| `ppl_char_15` | 2 |
-| `ppl_char_16` | 2 |
-| `ppl_char_17` | 2 |
-| `ppl_char_18` | 2 |
-| `ppl_char_19` | 2 |
-| `ppl_char_20` | 2 |
-| `ppl_char_21` | 2 |
-| `ppl_char_22` | 2 |
-| `ppl_char_23` | 2 |
-| `ppl_char_24` | 2 |
-| `ppl_char_25` | 2 |
-| `ppl_char_26` | 2 |
-| `ppl_char_27` | 2 |
-| `ppl_char_28` | 2 |
-| `ppl_char_29` | 2 |
-| `ppl_char_30` | 2 |
-| `ppl_char_31` | 2 |
-| `ppl_char_32` | 2 |
-| `ppl_char_33` | 2 |
-| `ppl_char_34` | 2 |
-| `ppl_char_35` | 2 |
-| `ppl_char_36` | 2 |
-| `ppl_char_37` | 2 |
-| `ppl_char_38` | 101 |
+##### Basic attribute query against `people` table
+`SELECT COUNT (DISTINCT #COLUMN#), MAX(#COLUMN#), MIN(#COLUMN#), AVERAGE(#COLUMN#) from people`
+
+
+|: column :|: count :|: max :|: min :|: mean :|
+|----------|---------|-|-|-|
+| people_id` | 189118 | | | |
+| `ppl_date` | 1196 | | | |
+| `ppl_group_1` | 34224 | | | | 
+| `ppl_char_1` | 2 |type 2 |type 1 | |
+| `ppl_char_2` | 3 |type 3 |type 1 | |
+| `ppl_char_3` | 43 |type 9 |type 1 | |
+| `ppl_char_4` | 25 |type 9 |type 1 | |
+| `ppl_char_5` | 9 |type 9 |type 1 | |
+| `ppl_char_6` | 7 |type 7 |type 1 | |
+| `ppl_char_7` | 25 |type 9 |type 1 | |
+| `ppl_char_8` | 8 |type 8 |type 1 | |
+| `ppl_char_9` | 9 |type 9 |type 1 | |
+| `ppl_char_10` | 2 | | | 0.25094385515921276663 |
+| `ppl_char_11` | 2 | | | 0.21550037542698209583 |
+| `ppl_char_12` | 2 | | | 0.24034729639695851267 |
+| `ppl_char_13` | 2 | | | 0.36507365771634640806 |
+| `ppl_char_14` | 2 | | | 0.25980075931429054876 |
+| `ppl_char_15` | 2 | | | 0.26951427151302361489 |
+| `ppl_char_16` | 2 | | | 0.28207785615330111359 |
+| `ppl_char_17` | 2 | | | 0.29196057487917596421 |
+| `ppl_char_18` | 2 | | | 0.18762360008037310039 |
+| `ppl_char_19` | 2 | | | 0.28465825569221332713 |
+| `ppl_char_20` | 2 | | | 0.22911621315792256686 |
+| `ppl_char_21` | 2 | | | 0.28503368267430916148 |
+| `ppl_char_22` | 2 | | | 0.29105637749976205332 |
+| `ppl_char_23` | 2 | | | 0.29849088928605420954 |
+| `ppl_char_24` | 2 | | | 0.19044723400205162914 |
+| `ppl_char_25` | 2 | | | 0.32778476929747565012 |
+| `ppl_char_26` | 2 | | | 0.16702799310483401897 |
+| `ppl_char_27` | 2 | | | 0.23805243287259806047 |
+| `ppl_char_28` | 2 | | | 0.28888841887075793949 |
+| `ppl_char_29` | 2 | | | 0.16834463139415602957 |
+| `ppl_char_30` | 2 | | | 0.20693429499042925581 |
+| `ppl_char_31` | 2 | | | 0.27858268382702862763 |
+| `ppl_char_32` | 2 | | | 0.28490677777895282311 |
+| `ppl_char_33` | 2 | | | 0.21784282828710117493 |
+| `ppl_char_34` | 2 | | | 0.35648113875992766421 |
+| `ppl_char_35` | 2 | | | 0.21027612390147949957 |
+| `ppl_char_36` | 2 | | | 0.34370075825674975412 |
+| `ppl_char_37` | 2 | | | 0.28545141128819044195 |
+| `ppl_char_38` | 101 |100.0 |0.0 |50.3273987669074 |
 
 #### `action`
 foreign key people id 
@@ -114,24 +120,27 @@ primary key action_id
 1 date
 1 boolean outcome
 
-##### unique counts for each column
-|: column :|: count :| 
-|----------|---------|
-| `people_id` | 189118 |
-| `act_id` | 2695978 |
-| `act_date` | 411 |
-| `act_category` | 7 |
-| `act_char_1` | 51 |
-| `act_char_2` | 32 |
-| `act_char_3` | 11 |
-| `act_char_4` | 7 |
-| `act_char_5` | 7 |
-| `act_char_6` | 5 |
-| `act_char_7` | 8 |
-| `act_char_8` | 18 |
-| `act_char_9` | 19 |
-| `act_char_10` | 6969 |
-| `act_outcome` | 2 |
+##### Basic attribute query against `people` table
+`SELECT COUNT (DISTINCT #COLUMN#), MAX(#COLUMN#), MIN(#COLUMN#), AVERAGE(#COLUMN#) from people`
+
+|: column :|: count :|: max :|: min :|: mean :|
+|----------|---------|-|-|-|
+| `people_id` | 189118 | | | |
+| `act_id` | 2695978 | | | |
+| `act_date` | 411 | | | |
+| `act_category` | 7 |type 7 |type 1 | |
+| `act_char_1` | 51 |type 9 |type 1 | |
+| `act_char_2` | 32 |type 9 |type 1 | |
+| `act_char_3` | 11 |type 9 |type 1 | |
+| `act_char_4` | 7 |type 7 |type 1 | |
+| `act_char_5` | 7 |type 7 |type 1 | |
+| `act_char_6` | 5 |type 5 |type 1 | |
+| `act_char_7` | 8 |type 8 |type 1 | |
+| `act_char_8` | 18 |type 9 |type 1 | |
+| `act_char_9` | 19 |type 9 |type 1 | |
+| `act_char_10` | 6969 |type 999 |type 1 | |
+| `act_outcome` | 2 | | |0.44395439657287086690 |
+
 
 In this section, you will be expected to analyze the data you are using for the problem. This data can either be in the form of a dataset (or datasets), input data (or input files), or even an environment. The type of data should be thoroughly described and, if possible, have basic statistics and information presented (such as discussion of input features or defining characteristics about the input or environment). Any abnormalities or interesting qualities about the data that may need to be addressed have been identified (such as features that need to be transformed or the possibility of outliers). Questions to ask yourself when writing this section:
 - _If a dataset is present for this problem, have you thoroughly discussed certain features about the dataset? Has a data sample been provided to the reader?_
