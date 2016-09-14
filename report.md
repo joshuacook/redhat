@@ -57,89 +57,77 @@ Samples
 To summarize the data, we can say this about each table. 
 
 #### `people`
-- `people_id` (primary key)
-- 1 text group
-9 text characteristics
-28 boolean characteristics *MEAN*
-1 float characteristic
-1 date
 
 ##### Basic attribute query against `people` table
 `SELECT COUNT (DISTINCT #COLUMN#), MAX(#COLUMN#), MIN(#COLUMN#), AVERAGE(#COLUMN#) from people`
 
 
-|: column :|: count :|: max :|: min :|: mean :|
-|----------|---------|-|-|-|
-| people_id` | 189118 | | | |
-| `ppl_date` | 1196 | | | |
-| `ppl_group_1` | 34224 | | | | 
-| `ppl_char_1` | 2 |type 2 |type 1 | |
-| `ppl_char_2` | 3 |type 3 |type 1 | |
-| `ppl_char_3` | 43 |type 9 |type 1 | |
-| `ppl_char_4` | 25 |type 9 |type 1 | |
-| `ppl_char_5` | 9 |type 9 |type 1 | |
-| `ppl_char_6` | 7 |type 7 |type 1 | |
-| `ppl_char_7` | 25 |type 9 |type 1 | |
-| `ppl_char_8` | 8 |type 8 |type 1 | |
-| `ppl_char_9` | 9 |type 9 |type 1 | |
-| `ppl_char_10` | 2 | | | 0.25094385515921276663 |
-| `ppl_char_11` | 2 | | | 0.21550037542698209583 |
-| `ppl_char_12` | 2 | | | 0.24034729639695851267 |
-| `ppl_char_13` | 2 | | | 0.36507365771634640806 |
-| `ppl_char_14` | 2 | | | 0.25980075931429054876 |
-| `ppl_char_15` | 2 | | | 0.26951427151302361489 |
-| `ppl_char_16` | 2 | | | 0.28207785615330111359 |
-| `ppl_char_17` | 2 | | | 0.29196057487917596421 |
-| `ppl_char_18` | 2 | | | 0.18762360008037310039 |
-| `ppl_char_19` | 2 | | | 0.28465825569221332713 |
-| `ppl_char_20` | 2 | | | 0.22911621315792256686 |
-| `ppl_char_21` | 2 | | | 0.28503368267430916148 |
-| `ppl_char_22` | 2 | | | 0.29105637749976205332 |
-| `ppl_char_23` | 2 | | | 0.29849088928605420954 |
-| `ppl_char_24` | 2 | | | 0.19044723400205162914 |
-| `ppl_char_25` | 2 | | | 0.32778476929747565012 |
-| `ppl_char_26` | 2 | | | 0.16702799310483401897 |
-| `ppl_char_27` | 2 | | | 0.23805243287259806047 |
-| `ppl_char_28` | 2 | | | 0.28888841887075793949 |
-| `ppl_char_29` | 2 | | | 0.16834463139415602957 |
-| `ppl_char_30` | 2 | | | 0.20693429499042925581 |
-| `ppl_char_31` | 2 | | | 0.27858268382702862763 |
-| `ppl_char_32` | 2 | | | 0.28490677777895282311 |
-| `ppl_char_33` | 2 | | | 0.21784282828710117493 |
-| `ppl_char_34` | 2 | | | 0.35648113875992766421 |
-| `ppl_char_35` | 2 | | | 0.21027612390147949957 |
-| `ppl_char_36` | 2 | | | 0.34370075825674975412 |
-| `ppl_char_37` | 2 | | | 0.28545141128819044195 |
-| `ppl_char_38` | 101 |100.0 |0.0 |50.3273987669074 |
+|: column :|: count :|: max :|: min :|: mean :|: notes :|
+|----------|---------|-|-|-|-|
+| people_id` | 189118 | | | | `text` primary key |
+| `ppl_date` | 1196 | | | | `timestamp` |
+| `ppl_group_1` | 34224 | | | | `text` |
+| `ppl_char_1` | 2 |type 2 |type 1 | | `text` |
+| `ppl_char_2` | 3 |type 3 |type 1 | | `text` |
+| `ppl_char_3` | 43 |type 9 |type 1 | | `text` |
+| `ppl_char_4` | 25 |type 9 |type 1 | | `text` |
+| `ppl_char_5` | 9 |type 9 |type 1 | | `text` |
+| `ppl_char_6` | 7 |type 7 |type 1 | | `text` |
+| `ppl_char_7` | 25 |type 9 |type 1 | | `text` |
+| `ppl_char_8` | 8 |type 8 |type 1 | | `text` |
+| `ppl_char_9` | 9 |type 9 |type 1 | | `text` |
+| `ppl_char_10` | 2 | | | 0.25094385515921276663 | `boolean` |
+| `ppl_char_11` | 2 | | | 0.21550037542698209583 | `boolean` |
+| `ppl_char_12` | 2 | | | 0.24034729639695851267 | `boolean` |
+| `ppl_char_13` | 2 | | | 0.36507365771634640806 | `boolean` |
+| `ppl_char_14` | 2 | | | 0.25980075931429054876 | `boolean` |
+| `ppl_char_15` | 2 | | | 0.26951427151302361489 | `boolean` |
+| `ppl_char_16` | 2 | | | 0.28207785615330111359 | `boolean` |
+| `ppl_char_17` | 2 | | | 0.29196057487917596421 | `boolean` |
+| `ppl_char_18` | 2 | | | 0.18762360008037310039 | `boolean` |
+| `ppl_char_19` | 2 | | | 0.28465825569221332713 | `boolean` |
+| `ppl_char_20` | 2 | | | 0.22911621315792256686 | `boolean` |
+| `ppl_char_21` | 2 | | | 0.28503368267430916148 | `boolean` |
+| `ppl_char_22` | 2 | | | 0.29105637749976205332 | `boolean` |
+| `ppl_char_23` | 2 | | | 0.29849088928605420954 | `boolean` |
+| `ppl_char_24` | 2 | | | 0.19044723400205162914 | `boolean` |
+| `ppl_char_25` | 2 | | | 0.32778476929747565012 | `boolean` |
+| `ppl_char_26` | 2 | | | 0.16702799310483401897 | `boolean` |
+| `ppl_char_27` | 2 | | | 0.23805243287259806047 | `boolean` |
+| `ppl_char_28` | 2 | | | 0.28888841887075793949 | `boolean` |
+| `ppl_char_29` | 2 | | | 0.16834463139415602957 | `boolean` |
+| `ppl_char_30` | 2 | | | 0.20693429499042925581 | `boolean` |
+| `ppl_char_31` | 2 | | | 0.27858268382702862763 | `boolean` |
+| `ppl_char_32` | 2 | | | 0.28490677777895282311 | `boolean` |
+| `ppl_char_33` | 2 | | | 0.21784282828710117493 | `boolean` |
+| `ppl_char_34` | 2 | | | 0.35648113875992766421 | `boolean` |
+| `ppl_char_35` | 2 | | | 0.21027612390147949957 | `boolean` |
+| `ppl_char_36` | 2 | | | 0.34370075825674975412 | `boolean` |
+| `ppl_char_37` | 2 | | | 0.28545141128819044195 | `boolean` |
+| `ppl_char_38` | 101 |100.0 |0.0 |50.3273987669074 | `real` |
 
 #### `action`
-foreign key people id 
-primary key action_id 
-10 text characteristics
-1 text category
-1 date
-1 boolean outcome
 
-##### Basic attribute query against `people` table
-`SELECT COUNT (DISTINCT #COLUMN#), MAX(#COLUMN#), MIN(#COLUMN#), AVERAGE(#COLUMN#) from people`
+##### Basic attribute query against `action` table
+`SELECT COUNT (DISTINCT #COLUMN#), MAX(#COLUMN#), MIN(#COLUMN#), AVERAGE(#COLUMN#) from action`
 
-|: column :|: count :|: max :|: min :|: mean :|
-|----------|---------|-|-|-|
-| `people_id` | 189118 | | | |
-| `act_id` | 2695978 | | | |
-| `act_date` | 411 | | | |
-| `act_category` | 7 |type 7 |type 1 | |
-| `act_char_1` | 51 |type 9 |type 1 | |
-| `act_char_2` | 32 |type 9 |type 1 | |
-| `act_char_3` | 11 |type 9 |type 1 | |
-| `act_char_4` | 7 |type 7 |type 1 | |
-| `act_char_5` | 7 |type 7 |type 1 | |
-| `act_char_6` | 5 |type 5 |type 1 | |
-| `act_char_7` | 8 |type 8 |type 1 | |
-| `act_char_8` | 18 |type 9 |type 1 | |
-| `act_char_9` | 19 |type 9 |type 1 | |
-| `act_char_10` | 6969 |type 999 |type 1 | |
-| `act_outcome` | 2 | | |0.44395439657287086690 |
+|: column :|: count :|: max :|: min :|: mean :|: notes :|
+|----------|---------|-|-|-|-|
+| `people_id` | 189118 | | | | `text` foreign key on `people` |
+| `act_id` | 2695978 | | | | `text` primary key |
+| `act_date` | 411 | | | | `timestamp` |
+| `act_category` | 7 |type 7 |type 1 | | `text` |
+| `act_char_1` | 51 |type 9 |type 1 | | `text` |
+| `act_char_2` | 32 |type 9 |type 1 | | `text` |
+| `act_char_3` | 11 |type 9 |type 1 | | `text` |
+| `act_char_4` | 7 |type 7 |type 1 | | `text` |
+| `act_char_5` | 7 |type 7 |type 1 | | `text` |
+| `act_char_6` | 5 |type 5 |type 1 | | `text` |
+| `act_char_7` | 8 |type 8 |type 1 | | `text` |
+| `act_char_8` | 18 |type 9 |type 1 | | `text` |
+| `act_char_9` | 19 |type 9 |type 1 | | `text` |
+| `act_char_10` | 6969 |type 999 |type 1 | | `text` |
+| `act_outcome` | 2 | | |0.44395439657287086690 | `boolean` |
 
 
 In this section, you will be expected to analyze the data you are using for the problem. This data can either be in the form of a dataset (or datasets), input data (or input files), or even an environment. The type of data should be thoroughly described and, if possible, have basic statistics and information presented (such as discussion of input features or defining characteristics about the input or environment). Any abnormalities or interesting qualities about the data that may need to be addressed have been identified (such as features that need to be transformed or the possibility of outliers). Questions to ask yourself when writing this section:

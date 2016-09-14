@@ -1,5 +1,6 @@
 import psycopg2
 from os import environ
+from numpy import array
 
 keys = [
     #('people_id',False),
@@ -116,3 +117,16 @@ def one_hot_encode_row(action_id):
         conn.commit()
         conn.close()
         return
+                
+def one_hot_from_table(cursor):
+    one_hot_vec = (cursor.fetchone()[0]
+     .replace('t','1')
+     .replace('f','0')
+     .replace('(','')
+     .replace(')','')
+     .split(',')
+    )
+    one_hot_vec = [float(el) for el in one_hot_vec]
+    outcome = one_hot_vec[-1:][0]
+    one_hot_vec = one_hot_vec[:-1]
+    return array(one_hot_vec), outcome        
