@@ -1,6 +1,8 @@
 DIRNAME=redhat
-
 default: build up
+
+report:
+	pandoc doc/report.md -o doc/report.pdf
 
 build:
 	docker-compose build
@@ -10,6 +12,9 @@ down:
 
 up:
 	docker-compose up
+
+bash_jupyter:
+	docker exec -it $(DIRNAME)_jupyter_1 /bin/bash
 
 bash_rq:
 	docker exec -it $(DIRNAME)_rq_1 /bin/bash

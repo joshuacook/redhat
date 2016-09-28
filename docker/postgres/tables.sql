@@ -57,7 +57,8 @@ CREATE TABLE action (
     act_char_8 TEXT,
     act_char_9 TEXT,
     act_char_10 TEXT,
-    act_outcome BOOLEAN DEFAULT NULL
+    act_outcome BOOLEAN DEFAULT NULL,
+    act_one_hot_encoding BYTEA
 );
 COPY action FROM '/docker-entrypoint-init.d/act_test.csv' HEADER DELIMITER ',' CSV; 
 COPY action FROM '/docker-entrypoint-init.d/act_train.csv' HEADER DELIMITER ',' CSV; 
