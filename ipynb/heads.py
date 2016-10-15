@@ -1,2 +1,0 @@
-# coding: utf-8
-['act_char_9_none', 'act_char_9_type_4', 'act_char_9_type_1', 'act_char_9_type_6', 'act_char_9_type_9', 'act_char_9_type_15', 'act_char_9_type_10', 'act_char_9_type_5', 'act_char_9_type_14', 'act_char_9_type_8', 'act_char_9_type_2', 'act_char_9_type_17', 'act_char_9_type_11', 'act_char_9_type_18', 'act_char_9_type_16', 'act_char_9_type_19', 'act_char_9_type_7', 'act_char_9_type_13', 'act_char_9_type_3', 'act_char_9_type_12']

@@ -20,6 +20,20 @@ Please refer to notebook [`1 Definition`](http://joshuacook.me:8003/notebooks/ip
 
 In this Kaggle competition, Red Hat seeks an optimal algorithm for using information about a given action and information about a given customer to predict the customer's behavior with regard to that action. A completed product will take the form of a csv with two items per row - an `action_id` from the test set, and a predicted outcome from the set ${0,1}$.
 
+The following is a sample of the required format for a solution submission:
+
+```bash
+$ head data/sample_submission.csv
+
+activity_id,outcome
+act1_1,0
+act1_100006,0
+act1_100050,0
+act1_100065,0
+act1_100068,0
+act1_100100,0
+```
+
 Data is provided in the form of three separate data sets encoded as CSV:
 
 - `people.csv`
@@ -28,8 +42,6 @@ Data is provided in the form of three separate data sets encoded as CSV:
 
 We will store our data in two tables in a PostgreSQL Database. 
 The `action` (`act_train.csv`) table makes reference to the `people` (`people.csv`) table. Beyond this, the sets have been scrubbed of any domain specific knowledge. Rather attributes are referred to generically as `char_1`, `char_2`, etc. As such the competition presents an interesting challenge, in which domain knowledge is completely useless. The competition is in essence a "pure machine learning problem."
-
-\pagebreak
 
 # Approach
 
@@ -53,30 +65,23 @@ Here, $I$ is an indicator function which yields 0 if the predicted outcome ($\ha
 
 We will assess the learner against the test set throughout the training process as a way of assessing the development of our learner. However, the results of the development of the assessment will not be uses for training and can thus be used repeatedly as an impartial measure of progress. 
 
-**TODO: Learner Assessment Diagram**
+![Learner Training and Assessment](../assets/img/learner_diagram.png)
 
-## Solution Format
+## Infrastructure 
 
-The following is a sample of the required format for a solution submission:
+We have designed a special infrastructure geared toward a "back-end"/server-side implementation of our processes. 
+This system uses Jupyter notebooks as its main interface, thought it is possible to interface with the system via the terminal. 
+Additionally, a browser-based control panel exists for tracking the progress of our workers. 
+We use to data management systems, a PostgreSQL database and Redis. 
+Finally, we have a worker layer of $n$ scalable worker cpus built using Python's `rq` framework. 
 
-```bash
-$ head data/sample_submission.csv
-
-activity_id,outcome
-act1_1,0
-act1_100006,0
-act1_100050,0
-act1_100065,0
-act1_100068,0
-act1_100100,0
-```
-
+![Infrastructure](../assets/img/infrastructure.png)
 
 \chapter{Preliminary Data Analysis}
 
 # Connecting to PostgreSQL
 
-Use notebook `2.01 Connecting to PostgreSQL`.
+Please refer to notebook [`2.01 Preliminary Data Analysis - Connecting to PostgreSQL`](http://joshuacook.me:8003/notebooks/ipynb/2.01%20Preliminary%20Data%20Analysis%20-%20Connecting%20to%20PostgreSQL.ipynb).
 
 We store all included data in a PostgreSQL database. By and large, we access this database using the [`psycopg2`](http://initd.org/psycopg/docs/) library.
 
@@ -102,7 +107,7 @@ cur.execute("SELECT COUNT(*) FROM action"); print(cur.fetchone())
 conn.close()
 ```
 
-**TODO: Diagram just Jupyter and DB**
+![Connecting to PostgreSQL](../assets/img/connecting_to_postgres.png)
 
 \pagebreak
 
@@ -116,7 +121,7 @@ The data to be used here consists of three datasets:
 
 We will do the following to analyze the datasets.
 
-1. prepare sql initialization scripts
+1. seeding the database 
 1. basic postgres descriptor (`\d+`)
 1. define the basic structure - rows, columns, data types
 1. identify unique labels for each column and the counts for each label
@@ -136,8 +141,7 @@ $ docker-compose build
 
 During the building of the image, any `.sql` or `.sh` files located in `/docker-entrypoint-initdb.d` will be executed. 
 We have defined the tables we will be using in the `tables.sql` file. The structure will be shown in a moment when we 
-run the postgres descriptors. It is of note, that we have also added our `one_hot_ppl_act` table which will contain one-hot 
-encoded data created by joining our two tables, however, this will be discussed later. 
+run the postgres descriptors. 
 The full structure can be viewed in the seeding file [here](https://github.com/joshuacook/redhat/blob/master/docker/postgres/tables.sql). 
 This functionality is part of the PostgreSQL public Docker image. 
 
@@ -183,7 +187,6 @@ Foreign-key constraints:
     "action_people_id_fkey" FOREIGN KEY (people_id) REFERENCES people(people_id)
 ```
 
-
 \pagebreak
 
 ## Descriptor for `people` table
@@ -216,6 +219,8 @@ Referenced by:
 \pagebreak 
 
 # Define the Basic Structure
+
+Please refer to notebook [`2.05 Preliminary Data Analysis - Define the Basic Structure`](http://joshuacook.me:8003/notebooks/ipynb/2.01%20Preliminary%20Data%20Analysis%20-%20Define%20the%20Basic%20Structure.ipynb).
 
 **TODO: Jupyter File**
 
@@ -259,8 +264,6 @@ Additionally we do not show the final group of columns for the following reasons
 
 `ppl_char_38` is a continuous valued column. 
 
-\pagebreak
-
 ## Number of Unique Labels for `action`
 
 Again we first show columns that have too many labels. However, upon second consideration we should use the column `act_category`.
@@ -282,8 +285,6 @@ Again we first show columns that have too many labels. However, upon second cons
 | act_char_10  | 6969    |
 
 We do not show the outcome `act_outcome` because it is boolean.
-
-\pagebreak
 
 # Run Aggregates on Columns
 
@@ -321,8 +322,6 @@ Next we take the average of our boolean columns. Note that all of them skew to t
 | ppl_char_37 | (0.2855) | 
 | act_outcome | (0.4440) |
 
-\pagebreak
-
 Then we take the average, maximum, and minimum of the single real-valued column. 
 
 ```
@@ -346,6 +345,9 @@ the `act_outcome` column, but this is functional as a null value in this field s
 \pagebreak
 
 # Create Histograms of Data
+
+Please refer to notebook [`2.10 Preliminary Data Analysis - Create Histograms of Data`](http://joshuacook.me:8003/notebooks/ipynb/2.10%20Preliminary%20Data%20Analysis%20-%20Create%20Histograms%20of%20Data.ipynb).
+
 Finally, we use the Python library [`seaborn`](https://stanford.edu/~mwaskom/software/seaborn/) to create plots of our data as histograms.
 
 First, we import the necessary libraries, then instantiate a connection to our database.
@@ -397,8 +399,6 @@ def hist_buckets(column, table, cur):
 
 ```
 
-\pagebreak
-
 Then, we define a function to create our bar plot. We are using the `seaborn` library which is designed to create beautiful plots with minimal configuration. 
 
 ```python
@@ -436,28 +436,30 @@ bar_plot('act_char_9','action',cur)
 ```
 
 
-![`ppl_char_1`](BarPlots_files/BarPlots_4_0.png)
-![`ppl_char_2`](BarPlots_files/BarPlots_5_0.png)
-![`ppl_char_3`](BarPlots_files/BarPlots_5_1.png)
-![`ppl_char_4`](BarPlots_files/BarPlots_5_2.png)
-![`ppl_char_5`](BarPlots_files/BarPlots_5_3.png)
-![`ppl_char_6`](BarPlots_files/BarPlots_5_4.png)
-![`ppl_char_7`](BarPlots_files/BarPlots_5_5.png)
-![`ppl_char_8`](BarPlots_files/BarPlots_5_6.png)
-![`ppl_char_9`](BarPlots_files/BarPlots_5_7.png)
-![`act_char_1`](BarPlots_files/BarPlots_6_0.png)
-![`act_char_2`](BarPlots_files/BarPlots_6_1.png)
-![`act_char_3`](BarPlots_files/BarPlots_6_2.png)
-![`act_char_4`](BarPlots_files/BarPlots_6_3.png)
-![`act_char_5`](BarPlots_files/BarPlots_6_4.png)
-![`act_char_6`](BarPlots_files/BarPlots_6_5.png)
-![`act_char_7`](BarPlots_files/BarPlots_6_6.png)
-![`act_char_8`](BarPlots_files/BarPlots_6_7.png)
-![`act_char_9`](BarPlots_files/BarPlots_6_8.png)
+![`ppl_char_1`](../assets/img/BarPlots_4_0.png)
+![`ppl_char_2`](../assets/img/BarPlots_5_0.png)
+![`ppl_char_3`](../assets/img/BarPlots_5_1.png)
+![`ppl_char_4`](../assets/img/BarPlots_5_2.png)
+![`ppl_char_5`](../assets/img/BarPlots_5_3.png)
+![`ppl_char_6`](../assets/img/BarPlots_5_4.png)
+![`ppl_char_7`](../assets/img/BarPlots_5_5.png)
+![`ppl_char_8`](../assets/img/BarPlots_5_6.png)
+![`ppl_char_9`](../assets/img/BarPlots_5_7.png)
+![`act_char_1`](../assets/img/BarPlots_6_0.png)
+![`act_char_2`](../assets/img/BarPlots_6_1.png)
+![`act_char_3`](../assets/img/BarPlots_6_2.png)
+![`act_char_4`](../assets/img/BarPlots_6_3.png)
+![`act_char_5`](../assets/img/BarPlots_6_4.png)
+![`act_char_6`](../assets/img/BarPlots_6_5.png)
+![`act_char_7`](../assets/img/BarPlots_6_6.png)
+![`act_char_8`](../assets/img/BarPlots_6_7.png)
+![`act_char_9`](../assets/img/BarPlots_6_8.png)
 
 \chapter{Algorithms and Techniques}
 
 # One-Hot Encoding
+
+Please refer to notebook [`3.01 Algorithms and Techniques - One-Hot Encoding Example`](http://joshuacook.me:8003/notebooks/ipynb/3.01%20Algorithms%20and%20Techniques%20-%20One-Hot%20Encoding%20Example.ipynb).
 
 We will use the One-Hot Encoding algorithm to convert our categorical data to numerical data. It may be tempting to merely convert our categories to numbers i.e. `type 01` $\to$ 1, `type 02` $\to$ 2, however, such an encoding of data implies a linear relationship between our categories, where there may be none. 
 
@@ -524,7 +526,7 @@ $$f(x_i, W, b)=Wx_i+b=y$$
 
 where $x_i$ is a particular input vector, $W$ is a matrix of weights (dimension $2 \times n$), $b$ is a bias vector, and $y$ is a score vector with a score for each class. 
 
-![](../assets/static/img/Linearclassifier.jpg)
+![](../assets/img/Linearclassifier.jpg)
 
 ## Loss Function
 
@@ -549,7 +551,29 @@ Here, $\lambda$ is a hyper parameter to be fit by cross-validation and $N$ is a 
 
 # Optimization
 
+Possibile methods:
 
+## Randomly guessing
+
+  - we initialize a weights matrix, $W_{cur}$
+  - for each vector (or batch of vectors) passed to the learner, we generate a new weights matrix, $W_{i}$
+  - if the new weights, $W_{i}$ is better in score than $W_{cur}$, we assign it to $W_{cur}$ 
+    $$W_{cur} \to W_i$$
+  - repeat for all of our test vectors
+
+## Random Local Search
+  - we initilialize a weights matrix, $W$
+  - for each batch of vectors passed, we generate a random matrix, $\Delta W$, of the same dimension as $W$ and scaled by some factor, $\nu$
+  - we measure the loss against the sum $W+\nu\Delta W$. 
+  - If $W + \nu\Delta W$ has a better score than $W$, we assign it to $W$
+    $$W + \nu\Delta W \to W$$
+  - repeat for all of our test vectors
+
+## Gradient Descent
+  - compute the best direction along which we should change our weight matrix that is mathematically guaranteed to be the direction of the steepest descent
+  - the gradient is a vector of derivatives for each dimension in the input space
+  - calculate the gradient and use this calculation to update the weight matrix
+    $$W_{new} = W - \nabla L$$
 
 # Benchmark
 
@@ -557,7 +581,7 @@ The quality of a solution to this task will be measured using the following test
 
 $$\text{Ave}(I(y_i\neq\hat{y}_i))$$
 
-Here, $I$ is an indicator function which yields 0 if the predicted outcome ($\hat{y}_i$) matches the actual outcome ($y_i$). While the size of the dataset (over 2 million rows in the action set) makes this problem atypical, it is at the end of the day, a binary classification problem. As such this simple metric is sufficient to measure our accuracy. 
+Here, $I$ is an indicator function which yields 0 if the predicted outcome ($\hat{y}_i$) matches the actual outcome ($y_i$), and returns 1 otherwise. While the size of the dataset (over 2 million rows in the action set) makes this problem atypical, it is at the end of the day, a binary classification problem. As such this simple metric is sufficient to measure our accuracy. 
 
 Of note is that, while the outcome is clearly defined by the contest, for the purposes of this project, we will be using a portion of the training set as our benchmark. 
 
@@ -565,13 +589,217 @@ Of note is that, while the outcome is clearly defined by the contest, for the pu
 
 # Visualizing the Loss Function
 
+Please refer to notebook [`4.01 Exploratory Visualization - Visualizing the Loss Function`](http://joshuacook.me:8003/notebooks/ipynb/4.01%20Exploratory%20Visualization%20-%20Visualizing%20the%20Loss%20Function.ipynb).
+
 A relevant visualization to this task is that of the loss function. For this visualizaton, we again turn to Andrej Karpathy's [notes](http://cs231n.github.io/optimization-1/). 
 
-**In this section, you will need to provide some form of visualization that summarizes or extracts a relevant characteristic or feature about the data. The visualization should adequately support the data being used. Discuss why this visualization was chosen and how it is relevant. Questions to ask yourself when writing this section:**
 
-- _Have you visualized a relevant characteristic or feature about the dataset or input data?_
-- _Is the visualization thoroughly analyzed and discussed?_
-- _If a plot is provided, are the axes, title, and datum clearly defined?_
+While we will have difficulty visualizing the loss function over the complete weight space, we can visualize it over a smaller space to begin to understand our approach. 
+
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%precision 1
+%matplotlib inline
+```
+
+For the purposes of this visualization, let us consider a small random weight matrix $(2,p)$ for a binary classifier, i.e., one weight vector for each classifier.
+
+We then generate a random input vector $x$ (with 6 parameters, and then a trailing bias) and and a vector of outputs. 
+
+Finally, we randomly select a correct outcome for a binary classifier.
+
+
+```python
+W = np.random.rand(2,7)
+x = np.random.randint(2, size=7)
+x[6] = 1
+correct_class = np.random.randint(2)
+```
+
+
+```python
+W
+```
+
+
+
+
+    array([[ 0.3,  0.5,  0.3,  0. ,  0.5,  0.1,  0.5],
+           [ 0.8,  0.8,  0.1,  0.4,  0. ,  0.9,  0.5]])
+
+
+
+
+```python
+x
+```
+
+
+
+
+    array([0, 0, 0, 0, 1, 1, 1])
+
+
+
+We then obtain our scores by multiplying 
+
+$$\texttt{scores}=Wx$$
+
+The first score is for our first classifier, the second for the second classifier. A score signifies how likely it is that the given classifier is the correct classifier. 
+
+
+```python
+scores = W.dot(x)
+scores
+```
+
+
+
+
+    array([ 1.2,  1.4])
+
+
+
+Next, we write a loss function for a single input vector. 
+
+
+```python
+from numpy.linalg import norm
+def loss_function_i(correct_class,x,W,delta=1.0,gamma=0.1):
+    scores = W.dot(x)
+    correct_score = scores[correct_class]
+    margins = np.maximum(0, scores - correct_score + delta)
+    margins[correct_class] = 0
+    return np.sum(margins) + gamma*norm(W)
+```
+
+
+```python
+loss_function_i(correct_class,x,W)
+```
+
+
+
+
+    0.9
+
+
+
+Finally, we vary the loss function for a single input with different weights for a single parameter, `param`. 
+
+
+```python
+def loss_function_in_a_direction(variable_weight,
+                                 param,
+                                 correct_class,
+                                 x,W):
+    delta_W = np.zeros(W.shape)
+    delta_W[:,param] += int(variable_weight)*W[:,param]
+    return loss_function_i(correct_class,x,W+delta_W)
+```
+
+
+```python
+loss_function_in_a_direction(1,1,correct_class,x,W)
+```
+
+
+
+
+    1.0
+
+
+
+And then plot this function along various values of `variable_weight` for all of our `params` values. 
+
+
+```python
+def plot_loss_function_for_a_single_parameter(plot_axis,param,correct_class,x,W):
+    dependent_vector = [loss_function_in_a_direction(variable_weight,
+                                                     param,
+                                                     correct_class,
+                                                     x,W) 
+                        for variable_weight in range(-20,20)]
+    plot_axis.plot(range(-20,20),dependent_vector)
+    
+def render_all_plots(correct_class,x,W):
+    figure, axes = plt.subplots(1,7, sharex=True, sharey=True, figsize=(20,6))
+    for param, axis in zip(range(7),axes):
+        plot_loss_function_for_a_single_parameter(axis,param,correct_class,x,W)    
+```
+
+
+```python
+render_all_plots(correct_class,x,W)
+```
+
+
+![Visualizing Loss Function change along one Parameter](../assets/img/loss_function_one_param.png)
+
+
+It is of note that every parameter is convex and can be minimized. 
+
+
+```python
+def loss_function_in_two_directions(a,p_1,b,p_2,correct_class,x,W):
+    delta_W = np.zeros(W.shape)
+    delta_W[:,p_1] += int(a)*W[:,p_1]
+    delta_W[:,p_2] += int(b)*W[:,p_2]
+    return loss_function_i(correct_class,x,W+delta_W)
+
+
+```
+
+We can also do the same for a comparison of two varied parameters. Again, note that each of these plots is convex. 
+
+
+```python
+def build_heat_map_for_two_parameters(p_1,p_2,min_val,max_val,nx,correct,x,W):
+    X = np.linspace(min_val, max_val, nx)
+    Y = np.linspace(min_val, max_val, nx)
+    return [[loss_function_in_two_directions(xv,p_1,yv,p_2,correct,x,W)
+             for xv in X]
+            for yv in Y]
+```
+
+
+```python
+def plot_heatmap(plot_axis,p_1,p_2,correct,x,W):
+    this_heat_map = build_heat_map_for_two_parameters(p_1,p_2,-100,100,50,correct,x,W)
+    sns.heatmap(this_heat_map,
+                cmap='autumn', 
+                cbar=False, 
+                xticklabels=False, 
+                yticklabels=False, 
+                vmin=0,vmax=5,
+                ax=plot_axis)
+    
+def render_all_plots(correct_class,x,W):
+    plt.figure(figsize=(18,21))
+    figure, axes = plt.subplots(7,6, sharex=True, sharey=True, figsize=(18,21))
+    for p_1, axes_i in zip(range(7),axes):        
+        p_2s = [i for i in range(7)]
+        p_2s.remove(p_1) 
+        for p_2, axis in zip(p_2s, axes_i):
+            plot_heatmap(axis,p_1,p_2,correct_class,x,W)
+            axis.set_title("p {} v p {}".format(str(p_1),str(p_2)))
+
+```
+
+
+```python
+render_all_plots(correct_class,x,W)
+```
+
+
+    <matplotlib.figure.Figure at 0x7f676d94f9b0>
+
+
+
+![Visualizing Loss Function change against Two Parameters](../assets/img/loss_function_two_params.png)
 
 \chapter{Data Preprocessing}
 
@@ -653,6 +881,70 @@ array([ 1.,  0.,  0.,  0.,  1.,  0.,  0.,  0.,  1.])
 
 
 \chapter{Implementation}
+
+# Steps to Implementation
+
+1. Seed a PostgreSQL database with the three csv files. 
+1. One-Hot Encode the data and store the one-hot encoded vector as an array in the `action` table
+1. Pull a batch of One-Hot Encoded vectors from the `action` table to pass to a Reinforcement Learner
+1. Create, Update, and Store the parameters of the Reinforcement Learner
+1. Use the Reinforcement Learner to run a set of predictions on Test Data. 
+1. Assess the accuracy of these predictions
+
+# Seed a PostgreSQL database with the three csv files. 
+This step is done at instantiation of the system. Refer to [Seeding the Database](#seeding-the-database).
+
+# One-Hot Encode the data and store the one-hot encoded vector as an array in the `action` table
+Please refer to notebook [`6.03 Implementation - Write One-Hot to Action Table`](http://joshuacook.me:8003/notebooks/ipynb/6.03%20Implementation%20-%20Write%20One-Hot%20to%20Action%20Table.ipynb).
+
+```python
+from os import chdir
+chdir('../')
+```
+
+```python
+mport psycopg2
+import numpy as np
+from os import environ
+from lib.app import Q
+from lib.helpers.database_helper import one_hot_encode_row, \
+    one_hot_from_table, pull_actions_and_one_hot_encode
+```
+
+```python
+ i = 0
+ while i < 100 :
+    Q.enqueue(pull_actions_and_one_hot_encode)
+    i += 1
+```
+
+We have written a library to handle the one-hot encoding of the data. `one_hot_encode_row` does a join on the action and people tables, converts the tables and categories to one-hot encoded data, converts this to a binary `numpy` vector, and writes this binary to the action table. `pull_actions_and_one_hot_encode` does this 1000 times for actions from the action table that do not yet have one-hot encoded vectors. 
+
+Note that we are also using our delayed job system to do the conversion. Once jobs have been enqueued, the status of enqueued jobs can be tracked [here](http://joshuacook.me:8002/rq/default).
+
+# Pull a batch of One-Hot Encoded vectors from the `action` table to pass to a Reinforcement Learner
+
+Please refer to notebook [`6.04 Implementation - Pull Batch of One-Hot Encoded Vectors`](http://joshuacook.me:8003/notebooks/ipynb/6.04%20Implementation%20-%20Pull%20Batch%20of%20One-Hot%20Encoded%20Vectors.ipynb).
+
+```python
+action_ids = pull_actions(action_type='training')
+
+
+``
+
+
+
+
+# Create, Update, and Store the parameters of the Reinforcement Learner
+
+Please refer to notebook [`6.05 Implementation - Create, Update, and Store RL parameters`](http://joshuacook.me:8003/notebooks/ipynb/6.05%20Create,%20Update,%20and%20Store%20RL%20parameters.ipynb).
+
+# Use the Reinforcement Learner to run a set of predictions on Test Data. 
+
+Please refer to notebook [`6.06 Implementation - Run Predictions`](http://joshuacook.me:8003/notebooks/ipynb/6.06%20Implementation%20-%20Run%20Predictions.ipynb).
+
+# Assess the accuracy of these predictions
+
 In this section, the process for which metrics, algorithms, and techniques that you implemented for the given data will need to be clearly documented. It should be abundantly clear how the implementation was carried out, and discussion should be made regarding any complications that occurred during this process. Questions to ask yourself when writing this section:
 - _Is it made clear how the algorithms and techniques were implemented with the given datasets or input data?_
 - _Were there any complications with the original metrics or techniques that required changing prior to acquiring a solution?_

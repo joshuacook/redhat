@@ -2,6 +2,7 @@ Flask
 ipdb
 IPython
 mongoengine
+numpy
 psycopg2
 pymongo
 redis
