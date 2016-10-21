@@ -1,6 +1,6 @@
 import psycopg2
 from os import environ
-from numpy import array, frombuffer, zeros
+from numpy import append, array, frombuffer, ones, zeros
 from lib.helpers.one_hot_indices import one_hot_indices
 
 def one_hot_encode_row(action_id):
@@ -98,7 +98,7 @@ def one_hot_and_outcome(action_id):
     cur.close()
     return one_hot_from_table(action_id), int(outcome)
 
-def pull_actions(limit=1000, action_type='one-hot'):
+def pull_actions(limit=1000, offset = 0, action_type='one-hot'):
     conn = psycopg2.connect(dbname='postgres', user='postgres', host=environ['REDHAT_POSTGRES_1_PORT_5432_TCP_ADDR'])
     cur = conn.cursor()
     if action_type=='one-hot':
@@ -106,18 +106,18 @@ def pull_actions(limit=1000, action_type='one-hot'):
             SELECT act_id FROM action 
             WHERE act_outcome = True OR act_outcome = False 
             AND act_one_hot_encoding is NULL 
-            LIMIT {};""".format(limit)
+            LIMIT {} OFFSET {};""".format(limit, offset)
     elif action_type == 'training':
         sql = """
             SELECT act_id FROM action 
             WHERE act_one_hot_encoding is not NULL 
-            LIMIT {};""".format(limit)
+            LIMIT {} OFFSET {};""".format(limit, offset)
     elif action_type == 'testing':
         sql = """
             SELECT act_id FROM action 
             WHERE act_one_hot_encoding is not NULL 
             AND act_outcome is NULL
-            LIMIT {};""".format(limit)
+            LIMIT {} OFFSET {};""".format(limit, offset)
     cur.execute(sql)
     action_ids = [action_id[0] for action_id in cur.fetchall()]
     return action_ids
@@ -125,4 +125,29 @@ def pull_actions(limit=1000, action_type='one-hot'):
 def pull_actions_and_one_hot_encode():    
     for action_id in pull_actions():
         one_hot_encode_row(action_id)
+        
+def pull_and_shape_batch(n=100, offset=0):
+    batch_features = []
+    batch_outcomes = []
+
+    action_ids = pull_actions(limit=n, 
+                              offset=offset,
+                              action_type='training')
+    
+    for action in action_ids:
+
+        # pull one hot vector and outcome from a row in the database
+        this_one_hot_vec, \
+            this_outcome = one_hot_and_outcome(action)
+
+        # append a bias     
+        batch_features.append(append(this_one_hot_vec, ones(1)))
+
+        # append one hot vector with bias to the batch
+        batch_outcomes.append(this_outcome)
+
+    # convert to numpy arrays    
+    batch_features = array(batch_features)
+    batch_outcomes = array(batch_outcomes)
+    return batch_features, batch_outcomes        
     
