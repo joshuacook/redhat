@@ -2,14 +2,18 @@ import psycopg2
 from os import environ
 from numpy import append, array, frombuffer, ones, zeros
 from lib.helpers.one_hot_indices import one_hot_indices
+from random import shuffle, seed
+
+def connect_to_postgres():
+
+    conn = psycopg2.connect(dbname='postgres', user='postgres', host=environ['REDHAT_POSTGRES_1_PORT_5432_TCP_ADDR'])
+    return conn, conn.cursor()
 
 def one_hot_encode_row(action_id):
 
+    conn, cur = connect_to_postgres()
     one_hot_vector = zeros(len(one_hot_indices)+1)
     
-    conn = psycopg2.connect(dbname='postgres', user='postgres', host=environ['REDHAT_POSTGRES_1_PORT_5432_TCP_ADDR'])
-    cur = conn.cursor()
-
     one_hot_join_query = """
     SELECT 
             a.act_char_1, a.act_char_2, a.act_char_3,
@@ -51,6 +55,7 @@ def one_hot_encode_row(action_id):
             'ppl_char_29', 'ppl_char_30', 'ppl_char_31',
             'ppl_char_32', 'ppl_char_33', 'ppl_char_34',
             'ppl_char_35', 'ppl_char_36', 'ppl_char_37']
+
     cur.execute(one_hot_join_query)
     
     res = list(cur.fetchall()[0])
@@ -75,7 +80,7 @@ def one_hot_encode_row(action_id):
                 
 def one_hot_from_table(action_id):
     
-    conn = psycopg2.connect(dbname='postgres', user='postgres', host=environ['REDHAT_POSTGRES_1_PORT_5432_TCP_ADDR'])
+    conn, cur = connect_to_postgres()
     cur = conn.cursor()
     cur.execute("""
     SELECT act_one_hot_encoding
@@ -83,24 +88,26 @@ def one_hot_from_table(action_id):
     WHERE act_id = '{}'
     """.format(action_id))
     buf = cur.fetchone()[0]
-    cur.close()
+    conn.close()
     return frombuffer(buf)
 
 def one_hot_and_outcome(action_id):
-    conn = psycopg2.connect(dbname='postgres', user='postgres', host=environ['REDHAT_POSTGRES_1_PORT_5432_TCP_ADDR'])
-    cur = conn.cursor()
+
+    conn, cur = connect_to_postgres()
+
     cur.execute("""
     SELECT act_outcome
     FROM action
     WHERE act_id = '{}';
     """.format(action_id))
     outcome = cur.fetchone()[0]
-    cur.close()
+    conn.close()
     return one_hot_from_table(action_id), int(outcome)
 
 def pull_actions(limit=1000, offset = 0, action_type='one-hot'):
-    conn = psycopg2.connect(dbname='postgres', user='postgres', host=environ['REDHAT_POSTGRES_1_PORT_5432_TCP_ADDR'])
-    cur = conn.cursor()
+
+    conn, cur = connect_to_postgres()
+
     if action_type=='one-hot':
         sql = """
             SELECT act_id FROM action 
@@ -120,17 +127,19 @@ def pull_actions(limit=1000, offset = 0, action_type='one-hot'):
             LIMIT {} OFFSET {};""".format(limit, offset)
     cur.execute(sql)
     action_ids = [action_id[0] for action_id in cur.fetchall()]
+    conn.close()
     return action_ids
         
-def pull_actions_and_one_hot_encode():    
-    for action_id in pull_actions():
+def pull_actions_and_one_hot_encode(limit=1000,offset=0):    
+    for action_id in pull_actions(limit, offset):
         one_hot_encode_row(action_id)
         
-def pull_and_shape_batch(n=100, offset=0):
+def pull_and_shape_batch(n=100, offset=0, action_ids=None):
     batch_features = []
     batch_outcomes = []
 
-    action_ids = pull_actions(limit=n, 
+    if not action_ids:
+        action_ids = pull_actions(limit=n, 
                               offset=offset,
                               action_type='training')
     
@@ -150,4 +159,10 @@ def pull_and_shape_batch(n=100, offset=0):
     batch_features = array(batch_features)
     batch_outcomes = array(batch_outcomes)
     return batch_features, batch_outcomes        
+
+def pull_training_and_test_sets():
+    seed(42)
+    action_set = pull_actions(limit=90000,action_type='training')
+    shuffle(action_set)
+    return action_set[:75000], action_set[75000:]
     

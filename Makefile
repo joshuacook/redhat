@@ -1,8 +1,11 @@
 DIRNAME=redhat
 default: build up
 
+watch_report:
+	while true; do kqwait doc/report.md; make report; echo 'next'; done
+
 report:
-	pandoc doc/report.md -o doc/report.pdf
+	pandoc --template=doc/template.latex doc/report.md -o doc/report.pdf
 
 build:
 	docker-compose build

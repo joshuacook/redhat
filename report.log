@@ -1,0 +1,15 @@
+This is LuaTeX, Version 0.95.0 (TeX Live 2016)  (format=luatex 2016.5.22)  23 OCT 2016 14:35
+ restricted system commands enabled.
+**doc/report.tex
+(./doc/report.tex
+! Undefined control sequence.
+l.1 \documentclass
+                []{report}
+? X
+
+warning  (pdf backend): no pages of output.
+
+PDF statistics: 0 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 131072)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

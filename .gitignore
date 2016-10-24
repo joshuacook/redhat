@@ -1,4 +1,6 @@
+.DS_Store 
 ipynb/.ipynb_checkpoints/*
 docker/postgres/*.csv
 **/*.pyc
+**/*.swp
 **/__pycache
