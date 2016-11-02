@@ -39,40 +39,18 @@ Worker
 
 ------------------
 
-```
-jupyter:
-  build: docker/jupyter
-  restart: always
-  links:
-    - redis
-    - postgres
-  volumes:
-    - .:/home/jovyan/work
-  ports:
-    - 8003:8888
+## `docker-compose.yml`
 
-postgres:
-  build: docker/postgres
-  volumes:
-    - .:/home
-  volumes_from:
-    - postgresdata
+\begin{figure}
+   \includegraphics[width=0.475\textwidth]{assets/img/redhat-docker-compose-yml-1.png}
+   \hfill
+   \includegraphics[width=0.475\textwidth]{assets/img/redhat-docker-compose-yml-2.png}
+\end{figure}
 
-postgresdata:
-  image: postgres
-  command: echo 'Data Container for PostgresDB'
-  volumes:
-    - /var/lib/postgresql
-    - /data/postgres
+## Controlling the System
 
-redis:
-  image: redis
-  volumes_from:
-    - redisdata
+## Launching the System
 
-redisdata:
-  image: redis
-  command: echo 'Data Container for Redis'
-  volumes:
-    - /data/redis
-```
+Launch triggers in postgres image
+
+## Queueing Tasks

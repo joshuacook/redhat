@@ -19,14 +19,11 @@ down:
 interface:
 	docker exec -it $(DIRNAME)_webserver_1 python -m lib.app.interface
 
-mongo:
-	docker exec -it $(DIRNAME)_mongo_1 mongo
-
 postgres:
 	docker exec -it $(DIRNAME)_postgres_1 psql postgres postgres 
 
 presentation:
-	pandoc -t beamer doc/presentation.md -o presentation.pdf
+	pandoc -t beamer doc/presentation.md -o doc/presentation.pdf
 
 redis:
 	docker exec -it $(DIRNAME)_redis_1 redis-cli
