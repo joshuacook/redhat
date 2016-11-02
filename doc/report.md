@@ -50,11 +50,12 @@ We take the following approach to completing this task:
 Note that while the Kaggle Challenge includes a set of test-data, for the purposes of this study we will be holding a separate test set aside that we are able to run our own local accuracy metrics. At the time of this writing, the competion is closed to new submissions. 
 
 ## Metrics
-The quality of a solution to this task will be measured using the following test error metric
 
-$$\text{Ave}(I(y_i\neq\hat{y}_i))$$
+We will look at three different properties of our test set in order to measure the success of our learner:
 
-Here, $I$ is an indicator function which yields 0 if the predicted outcome ($\hat{y}_i$) matches the actual outcome ($y_i$). While the size of the dataset (over 2 million rows in the action set) makes this problem atypical, it is at the end of the day, a binary classifcation problem. As such this simple metric is sufficient to measure our accuracy. 
+1. a confusion matrix
+1. accuracy
+1. F1 Score 
 
 We will assess the learner against the test set throughout the training process as a way of assessing the development of our learner. However, the results of the development of the assessment will not be uses for training and can thus be used repeatedly as an impartial measure of progress. 
 
@@ -490,13 +491,42 @@ Possibile methods:
 
 ## Benchmark
 
-The quality of a solution to this task will be measured using the following test error metric
-
-$$\text{Ave}(I(y_i\neq\hat{y}_i))$$
-
-Here, $I$ is an indicator function which yields 0 if the predicted outcome ($\hat{y}_i$) matches the actual outcome ($y_i$), and returns 1 otherwise. While the size of the dataset (over 2 million rows in the action set) makes this problem atypical, it is at the end of the day, a binary classification problem. As such this simple metric is sufficient to measure our accuracy. 
-
 Of note is that, while the outcome is clearly defined by the contest, for the purposes of this project, we will be using a portion of the training set as our benchmark. 
+Of note is that we modified our performance metric during the refinement phase. 
+
+As previously noted, we will look at three different properties of our test set in order to measure the success of our learner:
+
+1. a confusion matrix
+1. accuracy
+1. F1 Score 
+
+### Confusion Matrix
+
+A confusion matrix is a table that allows the visualization of the algorithm performance. Each row represents the actual classes of our target variable: 1 or 0. Each column represents the predicted classes of our target variable: 1 or 0. We will then measure the true and false positives as well as the true and false negatives. 
+
+### Accuracy
+
+Accuracy will be calculated in the following manner:
+
+$$\text{Accuracy} = \frac{\text{True Postives} + \text{True Negative}}{\text{Postives} + \text{Negatives}}$$
+
+We will be trying to maximize this value. 
+
+### F1 Score
+
+F1 Score will be calculated as
+
+$$F_1 = 2 \cdot \frac{\text{precision}\cdot\text{recall}}{\text{precision}+\text{recall}}$$
+
+where 
+
+$$\text{precision} = \frac{\text{True Positives}}{\text{True Positive}+\text{False Positives}}$$
+
+and 
+
+$$\text{recall} = \frac{\text{True Positivess}}{\text{True Positives}+\text{False Negatives}}$$
+
+We will be trying to maximize this value. 
 
 # Exploratory Visualization
 
@@ -689,6 +719,8 @@ Slightly better than guessing is a pretty poor performance. In order to improve 
 
 ## Learning via Random Search
 
+Please refer to notebook [`7.01 Refinement - Learning via Random Search`](http://joshuacook.me:8003/notebooks/ipynb/7.01%20Refinement%20-%20Learning%20via%20Random%20Search.ipynb).
+
 As a first attempt at improvement, we will work in batches through our training set. For each batch we will:
 
 1. generate a random weights matrix 
@@ -721,10 +753,19 @@ It is of note that we will be doing the training via distributed processing. As 
 >>> weights_matrix = get_weights_matrix()
 >>> features, outcomes = pull_and_shape_batch(action_ids=test_set)
 >>> measure_accuracy(weights_matrix, features, outcomes)
-0.55333333333333334
+0.76213333333333333
 ```
 
+We also prepared a plot of the loss function over the course of the training. Note hthat we saw improvement take place once, and never again. 
+
+![Loss Function over Random Search Training](assets/img/loss_function_over_training_1.png)
+
+\pagebreak
+
 ## Learning via Random Local Search
+
+Please refer to notebook [`7.02 Refinement - Learning via Random Local Search.ipynb`](http://joshuacook.me:8003/notebooks/ipynb/7.02%20Refinement%20-%20Learning%20via%20Random%20Local%20Search.ipynb).
+
 
 Next, we attempt to improve our initial random matrix via microchanges in the local vicinity. Again, we will work in batches through our training set. For each batch we will:
 
@@ -748,7 +789,24 @@ Next, we attempt to improve our initial random matrix via microchanges in the lo
 
 ### Assess Results
 
+```python
+>>> weights_matrix = get_weights_matrix()
+>>> features, outcomes = pull_and_shape_batch(action_ids=test_set[:100])
+>>> measure_accuracy(weights_matrix, features, outcomes)
+0.64000000000000001
+```
+
+Here, we actually have a lower accuracy result. This largely speaks to the instabilility of this method.  
+
+If we look at the plot of the loss function over the training, we can see that there was significantly greater improvement over the course of the training using this method. 
+
+![Loss Function over Random Local Search Training](assets/img/loss_function_over_training_2.png)
+
+\pagebreak
+
 ## Learning via Gradient Descent
+
+Please refer to notebook [`7.03 Refinement - Learning via Gradient Descent`](http://joshuacook.me:8003/notebooks/ipynb/7.03%20Refinement%20-%20Learning%20via%20Gradient%20Descent.ipynb).
 
 As one might imagine there is actually a better for local optimization than a random step. We will improve upon our prediction by taking a step in the *optimal* direction at each learning phase. The loss function is the function that we are attempting to minimize. The gradient of this loss function will tell use the direction in which the loss function is most rapidly decreasing. 
 
@@ -769,8 +827,48 @@ $$\nabla_{w_j} L_i = \mathbb{1}(w_j^Tx_i - w_{y_i}^Tx_i + \Delta > 0) x_i$$
 Here $\mathbb{1}$ is the indicator function that is one if if the condition inside is true or zero otherwise.
 
 ### Establish State of Training Session
-### Enqueue Training Jobs
+
+```python
+>>> n = int(len(training_set)/10)
+>>> initialize_training_session()
+>>> for i in range(n):
+        Q.enqueue(train_via_gradient_descent,
+                  action_ids=training_set[i*10:(i+1)*10],
+                  gamma=0.001)
+>>> training_counts, loss_values = prepare_plot_of_loss_function(length=n)      
+```
+
 ### Assess Results
+
+```python
+>>> weights_matrix = get_weights_matrix()
+>>> features, outcomes = pull_and_shape_batch(action_ids=test_set)
+>>> measure_accuracy(weights_matrix, features, outcomes)
+0.42180000000000001
+```
+
+![Loss Function over Gradient Search Training](assets/img/loss_function_over_training_3.png)
+
+This is the first training method not based on random chance. We note:
+
+- it has performed very poorly
+- we see the exponential growth of our loss function
+
+At this point, we did some deep consideration of our approach. The exponential growth of the loss function is a problem of implementation. We are not minimizing with respect to a regularized loss function. This is not necessarily the cause of our poor performance. Most likely, the cause of our poor performance is the curse of dimensionality. 
+
+`act_char_10` has 6969 unqiue labels. In order to properly one-hot encode this column, we require as many binary features. This one column multiples the size of our fetures space by seven. Given that complexity grows exponentially, we are pinning the poor performance of our learner on this column and discard it for our next pass. 
+
+## Recover from Curse of Dimensionality
+
+Please refer to notebook [`7.04 Refinement - Recover from Curse of Dimensionality`](http://joshuacook.me:8003/notebooks/ipynb/7.04%20Refinement%20-%20Recover%20from%20Curse%20of%20Dimensionality.ipynb).
+
+In order to drop `act_char_10`, we must change the way that we are performing our one-hot encoding. We create a new table of columns called `one_hot_indices_min.py`. 
+
+
+Please refer to notebook [`7.03 Refinement - Learning via Gradient Descent`](http://joshuacook.me:8003/notebooks/ipynb/7.03%20Refinement%20-%20Learning%20via%20Gradient%20Descent.ipynb).
+
+Please refer to notebook [`7.03 Refinement - Learning via Gradient Descent`](http://joshuacook.me:8003/notebooks/ipynb/7.03%20Refinement%20-%20Learning%20via%20Gradient%20Descent.ipynb).
+
 # Results
 _(approx. 2-3 pages)_
 

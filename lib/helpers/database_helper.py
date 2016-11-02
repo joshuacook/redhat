@@ -1,7 +1,7 @@
 import psycopg2
 from os import environ
 from numpy import append, array, frombuffer, ones, zeros
-from lib.helpers.one_hot_indices import one_hot_indices
+from lib.helpers.one_hot_indices_min import one_hot_indices
 from random import shuffle, seed
 
 def connect_to_postgres():
@@ -19,7 +19,6 @@ def one_hot_encode_row(action_id):
             a.act_char_1, a.act_char_2, a.act_char_3,
             a.act_char_4, a.act_char_5, a.act_char_6,
             a.act_char_7, a.act_char_8, a.act_char_9,
-            a.act_char_10, 
             p.ppl_char_1, p.ppl_char_2,
             p.ppl_char_3, p.ppl_char_4,
             p.ppl_char_5, p.ppl_char_6, p.ppl_char_7,
@@ -42,7 +41,7 @@ def one_hot_encode_row(action_id):
     cols = ['act_char_1', 'act_char_2', 'act_char_3',
             'act_char_4', 'act_char_5', 'act_char_6',
             'act_char_7', 'act_char_8', 'act_char_9',
-            'act_char_10', 'ppl_char_1', 'ppl_char_2',
+            'ppl_char_1', 'ppl_char_2',
             'ppl_char_3', 'ppl_char_4',
             'ppl_char_5', 'ppl_char_6', 'ppl_char_7',
             'ppl_char_8', 'ppl_char_9', 'ppl_char_10',
@@ -160,9 +159,9 @@ def pull_and_shape_batch(n=100, offset=0, action_ids=None):
     batch_outcomes = array(batch_outcomes)
     return batch_features, batch_outcomes        
 
-def pull_training_and_test_sets():
+def pull_training_and_test_sets(limit=90000):
     seed(42)
-    action_set = pull_actions(limit=90000,action_type='training')
+    action_set = pull_actions(limit=limit,action_type='training')
     shuffle(action_set)
     return action_set[:75000], action_set[75000:]
     
