@@ -61,4 +61,6 @@ CREATE TABLE action (
     act_one_hot_encoding BYTEA
 );
 COPY action FROM '/docker-entrypoint-init.d/act_test.csv' HEADER DELIMITER ',' CSV; 
-COPY action FROM '/docker-entrypoint-init.d/act_train.csv' HEADER DELIMITER ',' CSV; 
+COPY action FROM '/docker-entrypoint-init.d/act_train_1.csv' HEADER DELIMITER ',' CSV; 
+COPY action FROM '/docker-entrypoint-init.d/act_train_2.csv' HEADER DELIMITER ',' CSV; 
+COPY action FROM '/docker-entrypoint-init.d/act_train_3.csv' HEADER DELIMITER ',' CSV; 
