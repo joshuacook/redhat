@@ -28,6 +28,15 @@ function join_swarm_agent {
 
 export -f join_swarm_agent
 
+if [ -z "$1" ]
+  then
+        echo 'create_master'
+        echo 'create_nodes #NUMBER_OF_NODES#'
+        echo 'destroy'
+else
+    NUMBER_OF_NODES=$2
+fi
+
 case $1 in
     create_master )
 
@@ -36,6 +45,7 @@ case $1 in
           --digitalocean-access-token=$DO_TOKEN \
           --digitalocean-size=512mb \
           --digitalocean-region=$DO_USER \
+          --digitalocean-region=$DO_REGION \
           --digitalocean-private-networking=true \
           --digitalocean-ssh-key-fingerprint=$DO_SSH_KEY_FINGERPRINT \
           --digitalocean-image=docker \
@@ -69,7 +79,7 @@ case $1 in
             NUMBER_OF_NODES=$2
         fi
 
-        parallel --gnu create_docker_node ::: $(seq $NUMBER_OF_NODES)
+        parallel --gnu --citation create_docker_node ::: $(seq $NUMBER_OF_NODES)
 
         eval $(docker-machine env --swarm docker-swarm-master)
         docker info
