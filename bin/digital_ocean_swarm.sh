@@ -32,6 +32,7 @@ if [ -z "$1" ]
   then
         echo 'create_master'
         echo 'create_nodes #NUMBER_OF_NODES#'
+        echo 'destroy_all_nodes'
         echo 'destroy'
 else
     NUMBER_OF_NODES=$2
@@ -79,11 +80,14 @@ case $1 in
             NUMBER_OF_NODES=$2
         fi
 
-        parallel --gnu --citation create_docker_node ::: $(seq $NUMBER_OF_NODES)
+        parallel --gnu create_docker_node ::: $(seq $NUMBER_OF_NODES)
 
         eval $(docker-machine env --swarm docker-swarm-master)
         docker info
     ;;
+    destroy_all_nodes)
+        yes | docker-machine rm $(docker-machine ls -q | grep docker-swarm-agent)
+    ;;  
     destroy )
     yes | docker-machine rm $(docker-machine ls -q | grep docker-swarm)
     ;;
@@ -94,4 +98,5 @@ case $1 in
 esac
 
 date
+
 

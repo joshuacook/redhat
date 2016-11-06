@@ -1,0 +1,29 @@
+[?25l[J[J[J[J[J[J[?12l[?25h[?1049h[?1h=[1;43r[?12;25h[?12l[?25h[27m[23m[m[H[2J[?25l[43;1H"digital_ocean_swarm.sh" 101L, 2959C[1;1H#!/bin/bash
+date
+
+function create_docker_node {
+    docker-machine create \[6;7H--driver=digitalocean \[7;7H--digitalocean-access-token=$DO_TOKEN \[8;7H--digitalocean-size=2gb \[9;7H--digitalocean-region=$DO_REGION \[10;7H--digitalocean-private-networking=true \[11;7H--digitalocean-ssh-user=$DO_USER \[12;7H--digitalocean-ssh-port=22 \[13;7H--digitalocean-ssh-key-fingerprint=$DO_SSH_KEY_FINGERPRINT \[14;7H--digitalocean-image=docker \[15;7H--swarm \[16;7H--swarm-discovery consul://${kvip}:8500 \[17;7H--engine-opt "cluster-store consul://${kvip}:8500" \[18;7H--engine-opt "cluster-advertise eth1:2376" \[19;9Hdocker-swarm-agent-$1
+}
+
+export -f create_docker_node
+
+function join_swarm_agent {
+    eval $(docker-machine env docker-swarm-agent-$1)
+    docker run -d swarm join --addr=$(docker-machine ip docker-swarm-agent-$1):2376 token://$2
+}
+
+export -f join_swarm_agent
+
+if [ -z "$1" ]
+  then[33;9Hecho 'create_master'[34;9Hecho 'create_nodes #NUMBER_OF_NODES#'[35;9Hecho 'destroy_all_nodes'[36;9Hecho 'destroy'
+else
+    NUMBER_OF_NODES=$2
+fi
+
+case $1 in
+    create_master )[1;1H[?12l[?25h
+
+
+
+    [6;7H[7;7H[?25l[43;1HType  :quit<Enter>  to exit Vim[43;32H[K[7;7H[?12l[?25h[?25l[1;42r[1;1H[21M[1;43r[23;9Hdocker-machine create \[24;11H--driver=digitalocean \[25;11H--digitalocean-access-token=$DO_TOKEN \[26;11H--digitalocean-size=512mb \[27;11H--digitalocean-region=$DO_USER \[28;11H--digitalocean-region=$DO_REGION \[29;11H--digitalocean-private-networking=true \[30;11H--digitalocean-ssh-key-fingerprint=$DO_SSH_KEY_FINGERPRINT \[31;11H--digitalocean-image=docker \[32;13Hdocker-swarm-kv-store[34;9Hdocker $(docker-machine config docker-swarm-kv-store) run -d \[35;9H--net=host progrium/consul --server -bootstrap-expect 1[37;9Hkvip=$(docker-machine ip docker-swarm-kv-store)[39;9Hdocker-machine create \[40;11H--driver=digitalocean \[41;11H--digitalocean-access-token=$DO_TOKEN \[42;11H--digitalocean-size=2gb \[43;1H[K[7;1H[?12l[?25h[?25l[43;1HType  :quit<Enter>  to exit Vim[7;1H[?12l[?25h[43;1H
+[?1l>[?1049l

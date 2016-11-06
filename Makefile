@@ -37,6 +37,13 @@ rm:
 swarm:
 	bash bin/digital_ocean_swarm.sh
 
+swarm_local:
+	$(shell docker-machine env -u)
+
+swarm_token:
+	echo SWARM_CLUSTER_TOKEN=$(shell docker run swarm create) > swarm_cluster_token.txt
+	echo 'Run $ . swarm_cluster_token.txt'
+
 up:
 	docker-compose up
 
