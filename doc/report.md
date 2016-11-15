@@ -322,7 +322,7 @@ the `act_outcome` column, but this is functional as a null value in this field s
 
 \pagebreak
 
-## Create Histograms of Data
+## Exploratory Visualiztion
 
 Please refer to notebook [`2.10 Preliminary Data Analysis - Create Histograms of Data`](http://joshuacook.me:8003/notebooks/ipynb/2.10%20Preliminary%20Data%20Analysis%20-%20Create%20Histograms%20of%20Data.ipynb).
 
@@ -528,7 +528,7 @@ $$\text{recall} = \frac{\text{True Positivess}}{\text{True Positives}+\text{Fals
 
 We will be trying to maximize this value. 
 
-# Exploratory Visualization
+# Free-Form Visualization 
 
 ## Visualizing the Loss Function
 
@@ -864,8 +864,11 @@ Please refer to notebook [`7.04 Refinement - Recover from Curse of Dimensionalit
 
 In order to drop `act_char_10`, we must change the way that we are performing our one-hot encoding. We create a new table of columns called `one_hot_indices_min.py`. 
 
+## Rewrite One-Hot to Action Table
 
-Please refer to notebook [`7.03 Refinement - Learning via Gradient Descent`](http://joshuacook.me:8003/notebooks/ipynb/7.03%20Refinement%20-%20Learning%20via%20Gradient%20Descent.ipynb).
+Please refer to notebook [`7.05 Refinement - Rewrite One-Hot to Action Table`](http://joshuacook.me:8003/notebooks/ipynb/7.05%20Refinement%20-%20Rewrite%20One-Hot%20to%20Action%20Table.ipynb).
+
+## Learning via Gradient Descent, Part 2
 
 Please refer to notebook [`7.03 Refinement - Learning via Gradient Descent`](http://joshuacook.me:8003/notebooks/ipynb/7.03%20Refinement%20-%20Learning%20via%20Gradient%20Descent.ipynb).
 
@@ -873,50 +876,14 @@ Please refer to notebook [`7.03 Refinement - Learning via Gradient Descent`](htt
 _(approx. 2-3 pages)_
 
 ## Model Evaluation and Validation
-In this section, the final model and any supporting qualities should be evaluated in detail. It should be clear how the final model was derived and why this model was chosen. In addition, some type of analysis should be used to validate the robustness of this model and its solution, such as manipulating the input data or environment to see how the model’s solution is affected (this is called sensitivity analysis). Questions to ask yourself when writing this section:
-- _Is the final model reasonable and aligning with solution expectations? Are the final parameters of the model appropriate?_
-- _Has the final model been tested with various inputs to evaluate whether the model generalizes well to unseen data?_
-- _Is the model robust enough for the problem? Do small perturbations (changes) in training data or the input space greatly affect the results?_
-- _Can results found from the model be trusted?_
+The work in this project has been invaluable in developing an understanding of the work that goes into developing a high-performance computing environment. That said, I am not satisfied with the model developing during the implementation. The final state of the model was of a single node using gradient descent that was stuck at an implementation of regularization to the update. As can be seen in figure 7.3, without the inclusion of regularization the loss function increases exponentially over time. While this does not actually affect the validity of the accompanying weight matrix, it does make it difficult to draw a comparison between the gradient descent method and the other methods implemented herein. 
 
-## Justification
-In this section, your model’s final solution and its results should be compared to the benchmark you established earlier in the project using some type of statistical analysis. You should also justify whether these results and the solution are significant enough to have solved the problem posed in the project. Questions to ask yourself when writing this section:
-- _Are the final results found stronger than the benchmark result reported earlier?_
-- _Have you thoroughly analyzed and discussed the final solution?_
-- _Is the final solution significant enough to have solved the problem?_
+We have found the primary illumnination provided by the gradient descent is that our feature space is too large. 
 
 
 # Conclusion
-_(approx. 1-2 pages)_
-
-## Free-Form Visualization
-In this section, you will need to provide some form of visualization that emphasizes an important quality about the project. It is much more free-form, but should reasonably support a significant result or characteristic about the problem that you want to discuss. Questions to ask yourself when writing this section:
-- _Have you visualized a relevant or important quality about the problem, dataset, input data, or results?_
-- _Is the visualization thoroughly analyzed and discussed?_
-- _If a plot is provided, are the axes, title, and datum clearly defined?_
 
 ## Reflection
-In this section, you will summarize the entire end-to-end problem solution and discuss one or two particular aspects of the project you found interesting or difficult. You are expected to reflect on the project as a whole to show that you have a firm understanding of the entire process employed in your work. Questions to ask yourself when writing this section:
-- _Have you thoroughly summarized the entire process you used for this project?_
-- _Were there any interesting aspects of the project?_
-- _Were there any difficult aspects of the project?_
-- _Does the final model and solution fit your expectations for the problem, and should it be used in a general setting to solve these types of problems?_
 
-## Improvement
-In this section, you will need to provide discussion as to how one aspect of the implementation you designed could be improved. As an example, consider ways your implementation can be made more general, and what would need to be modified. You do not need to make this improvement, but the potential solutions resulting from these changes are considered and compared/contrasted to your current solution. Questions to ask yourself when writing this section:
-- _Are there further improvements that could be made on the algorithms or techniques you used in this project?_
-- _Were there algorithms or techniques you researched that you did not know how to implement, but would consider using if you knew how?_
-- _If you used your final solution as the new benchmark, do you think an even better solution exists?_
-
------------
-
-**Before submitting, ask yourself. . .**
-
-- Does the project report you’ve written follow a well-organized structure similar to that of the project template?
-- Is each section (particularly **Analysis** and **Methodology**) written in a clear, concise and specific fashion? Are there any ambiguous terms or phrases that need clarification?
-- Would the intended audience of your project be able to understand your analysis, methods, and results?
-- Have you properly proof-read your project report to assure there are minimal grammatical and spelling mistakes?
-- Are all the resources used for this project correctly cited and referenced?
-- Is the code that implements your solution easily readable and properly commented?
-- Does the code execute without error and produce results similar to those reported?
+It is important to note that nearly very line of code in this project was written by me. In this sense, there has been great value in attempting to implement some of the most challenging machine learning concepts from scratch. That said, it is clearly not the best solution to this task. Tensorflow or a similar library should have been brought to bear on this task. It is of note that tensorflow has been developed by a team of more than 20 people. While I have learned a lot in writing this code base, especially in terms of writing clean Python, perhaps the most important thing I have learned is that it is okay to stand on the shoulders of giants. I don't need to do everything from scratch. 
 
