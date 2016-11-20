@@ -5,7 +5,7 @@ numbersections: true
 toc: true
 color: blue
 documentclass: report
-abstract: The purpose of this project is to solve a Kaggle competition using manually constructed neural networks and reinforcement learning techniques. The [competition](https://www.kaggle.com/c/predicting-red-hat-business-value) in question is sponsored by Red Hat. Given situational (an "action" data set) and customer (a "people" data set) information, the goal is to predict customer behavior for a given action. Customer behavior is a binary classification; customers either take an action or they do not. This project will use these two data sources and neural network/reinforcement learning techniques to prepare an algorithm capable of predicting outcomes against a third situational (a "test action" data set) source. The infrastructure designed and built for this project is informed by and informs the work, [*the Containerized Jupyter Platform*](https://leanpub.com/thecontainerizedjupyterplatform). This work is accompanied by a set of [Jupyter notebooks](http://joshuacook.me:8003/tree/ipynb) and a docker-compose.yml file that can be run in order to validate all information here presented.
+abstract: The purpose of this project is to solve a Kaggle competition using manually constructed neural networks and reinforcement learning techniques. The [competition](https://www.kaggle.com/c/predicting-red-hat-business-value) in question is sponsored by Red Hat. Given situational (an "action" data set) and customer (a "people" data set) information, the goal is to predict customer behavior for a given action. Customer behavior is a binary classification; customers either take an action or they do not. This project will use these two data sources and neural network/reinforcement learning techniques to prepare an algorithm capable of predicting outcomes against a third situational (a "test action" data set) source. The infrastructure designed and built for this project is informed by and informs the work, [*the Containerized Jupyter Platform*](https://leanpub.com/thecontainerizedjupyterplatform). This work is accompanied by a set of [Jupyter notebooks](http://joshuacook.me:8003/tree/ipynb) and a docker-compose.yml file that can be run in order to validate all information here presented. **Note**: the data set as provided has bebeen scrubbed of all information. All attributes have generic names like `attribute_1`, `attribute_2`, etc, all characteristics are `characteristic_1`, `characteristic_2`, etc, and all outcomes are `outcome_1`, `outcome_2`, etc. As such the competition presents an interesting challenge, in which domain knowledge is completely useless. The competition is in essence a "pure machine learning problem."
 ---
 
 # Definition
@@ -46,8 +46,14 @@ We take the following approach to completing this task:
 1. Seed a PostgreSQL database with the three csv files. 
 1. One-Hot Encode the data and store the one-hot encoded vector as an array in the `action` table
 1. Train and Assess a Series of Learners
+    - try learning via random search
+    - try learning via random local search
+    - try learning via stochastic gradient descent
+    - try learning via stochastic gradient descent
 
 Note that while the Kaggle Challenge includes a set of test-data, for the purposes of this study we will be holding a separate test set aside that we are able to run our own local accuracy metrics. At the time of this writing, the competion is closed to new submissions. 
+
+To prevent overfitting, we will include a regularization penalty in our model. 
 
 ## Metrics
 
@@ -56,6 +62,8 @@ We will look at three different properties of our test set in order to measure t
 1. a confusion matrix
 1. accuracy
 1. F1 Score 
+
+Our task is one of classification. The confusion matrix is specifically designed to show the success of a classifier by showing the number of times it correctly and incorrectly identified each target class. The accuracy aims to capture the success of the classifier by calculating a normalized count of the number of successful prediction. The F1 score is a third metric for classification which can be thought of as a weighted average of the precision and recall. The confusion matrix will provide a handy visual for examining our learners, whereas the accuracy and the F1 score will provide a numerical metric which can be optimized. 
 
 We will assess the learner against the test set throughout the training process as a way of assessing the development of our learner. However, the results of the development of the assessment will not be uses for training and can thus be used repeatedly as an impartial measure of progress. 
 
@@ -500,6 +508,8 @@ As previously noted, we will look at three different properties of our test set 
 1. accuracy
 1. F1 Score 
 
+It is difficult to establish an appropriate benchmark given the nature of the codebase for this project. The vast majority of the code here has been written using pure numpy. As such, we can not hope to compete with the latest libraries such as XGBoost or Keras. A random guessing learner would be successful 50% of the time. We think it a reasonable goal that our methods written by hand achieve an 80% accuracy. 
+
 ### Confusion Matrix
 
 A confusion matrix is a table that allows the visualization of the algorithm performance. Each row represents the actual classes of our target variable: 1 or 0. Each column represents the predicted classes of our target variable: 1 or 0. We will then measure the true and false positives as well as the true and false negatives. 
@@ -670,10 +680,10 @@ We first establish a baseline competency by examining performance of a totally u
 
 ```python
 >>> from os import chdir; chdir('../')
->>> from numpy import mean
 >>> from random import shuffle, seed
 >>> from lib.helpers.database_helper import pull_actions, pull_and_shape_batch
->>> from lib.nn.functions import measure_accuracy, random_matrix
+>>> from lib.nn.metrics import measure_accuracy, measure_f1_score, correlation_matrix
+>>> from lib.nn.functions import random_matrix, predict
 ```
 
 #### Pull Training and Test Rows
@@ -683,7 +693,11 @@ We `seed` the shuffling mechanism for deterministic results. We then pull a set 
 We are not actually training a learner here. We are merely generating a random matrix of the appropriate size. We then check the accuracy of this random matrix against our test set. This is done four times via the `%%timeit` ipython magic function.
 
 ```python
->>> accuracies = []
+>>> seed(42)
+>>> action_set = pull_actions(limit=90000,action_type='training')
+>>> shuffle(action_set)
+>>> training_set = action_set[:75000]
+>>> test_set = action_set[75000:]
 ```
 
 ```python
@@ -691,27 +705,71 @@ We are not actually training a learner here. We are merely generating a random m
 >>> # initialize a random_weights matrix
 >>> random_weights = random_matrix(2, 7326)
 >>> features, outcomes = pull_and_shape_batch(action_ids=test_set)
->>> accuracy = measure_accuracy(random_weights, features, outcomes)
->>> print(accuracy)
->>> accuracies.append(accuracy)
+>>> predicted = predict(random_weights, features)
+>>> correlation_matrix(predicted, outcomes)
+>>> print(measure_accuracy(predicted, outcomes))
+>>> print(measure_f1_score(predicted, outcomes))
 ```
 
 ```python
-0.5552
-0.636933333333
-0.544133333333
-0.551466666667
-1 loop, best of 3: 1min 30s per loop
+
+                    act      act
+                   true    false   totals 
+    +------------+-------+-------+-------+
+    | pred true  |  4971 |  2134 |  7105 |
+    +------------+-------+-------+-------+
+    | pred false |  2118 |  5777 |  7895 |
+    +------------+-------+-------+-------+
+    |  totals    |  7089 |  7911 | 15000 |
+    +------------+-------+-------+-------+
+    
+accuracy: 0.716533333333
+f1_score: 0.7004368042835001
 ```
 
-We take the mean of this.
+So this purely random matrix performs quite well, achieving an accuracy of 71.7% and an F1-score of 0.700.
+
+We run the same process a second time and third time.
+
+### Second Pass with a Random Matrix
 
 ```python
->>> mean(accuracies)
-0.5719333333333334
+                    act      act
+                   true    false   totals 
+    +------------+-------+-------+-------+
+    | pred true  |    39 |  1624 |  1663 |
+    +------------+-------+-------+-------+
+    | pred false |  7050 |  6287 | 13337 |
+    +------------+-------+-------+-------+
+    |  totals    |  7089 |  7911 | 15000 |
+    +------------+-------+-------+-------+
+    
+accuracy: 0.421733333333
+f1_score: 0.008912248628884827
 ```
 
-So a purely random matrix performs a little bit better than guessing. I suspect that were this to be repeated many times, the mean would be close to the expected 0.50. 
+### Third Pass with a Random Matrix
+
+```
+                    act      act
+                   true    false   totals 
+    +------------+-------+-------+-------+
+    | pred true  |     0 |     2 |     2 |
+    +------------+-------+-------+-------+
+    | pred false |  7089 |  7909 | 14998 |
+    +------------+-------+-------+-------+
+    |  totals    |  7089 |  7911 | 15000 |
+    +------------+-------+-------+-------+
+    
+accuracy: 0.527266666667
+```
+
+The third pass actually returned a `ZeroDivisionError` for the F1 Score.
+
+## Results from Training on a Random Matrix
+
+Training on a random matrix is highly unstable and not a suitable method for learning. 
+
 
 # Refinement
 
@@ -873,15 +931,21 @@ Please refer to notebook [`7.05 Refinement - Rewrite One-Hot to Action Table`](h
 Please refer to notebook [`7.03 Refinement - Learning via Gradient Descent`](http://joshuacook.me:8003/notebooks/ipynb/7.03%20Refinement%20-%20Learning%20via%20Gradient%20Descent.ipynb).
 
 # Results
-_(approx. 2-3 pages)_
 
-## Model Evaluation and Validation
-The work in this project has been invaluable in developing an understanding of the work that goes into developing a high-performance computing environment. That said, I am not satisfied with the model developing during the implementation. The final state of the model was of a single node using gradient descent that was stuck at an implementation of regularization to the update. As can be seen in figure 7.3, without the inclusion of regularization the loss function increases exponentially over time. While this does not actually affect the validity of the accompanying weight matrix, it does make it difficult to draw a comparison between the gradient descent method and the other methods implemented herein. 
+## Final Model
 
-We have found the primary illumnination provided by the gradient descent is that our feature space is too large. 
-
+## Benchmark Comparison
 
 # Conclusion
+
+## Summary of Project
+
+What worked, what didn't work
+
+## Steps for Improvment
+High performance approach. Was not able to get clustering to work. Look at Kubernetes.
+
+Writing code from scratch is a worthwhile exercise and an excellent cap to program, but next time use TensorFlow. 
 
 ## Reflection
 
