@@ -815,8 +815,8 @@ It is of note that we will be doing the training via distributed processing. As 
 
 This method, using a batch size of 50 and 700000 samples yielded
 
-- accuracy: 0.803451
-- f_score: 0.810321
+- Accuracy: 0.803451
+- F1 Score: 0.810321
 
 ![Training via Random Search](assets/img/7_01_Refinement_Learning_via_Random_Search_5_2.png)
 
@@ -852,8 +852,14 @@ Next, we attempt to improve our initial random matrix via microchanges in the lo
 >>>                                        length=int(len(training_set)/batch_size))    
 ```
 
-
 ### Assess Results
+
+This method, using a batch size of 50 and 700000 samples yielded
+
+- Accuracy: 0.590684
+- F1 Score: 0.668573
+
+![Training via Random Local Search](assets/img/7_02_Refinement_Learning_via_Random_Local_Search.png)
 
 \pagebreak
 
@@ -881,9 +887,30 @@ Here $\mathbb{1}$ is the indicator function that is one if if the condition insi
 
 ### Establish State of Training Session
 
+```python
+>>> training_set, test_set = pull_training_and_test_sets(limit=700000,split=.99)
+>>> features, outcomes = pull_and_shape_batch(action_ids=test_set)
+>>> initialize_training_session()
+>>> batch_size = 500
+>>> for i in range(int(len(training_set)/batch_size)):
+>>>     Q.enqueue(train_via_gradient_descent,
+>>>               action_ids=training_set[i*batch_size:(i+1)*batch_size],
+>>>               gamma=0.001)
+>>> counts, f_1_scores, \
+>>>     accuracies, \
+>>>     loss_values = prepare_plot_vectors(features,
+>>>                                        outcomes,
+>>>                                        length=int(len(training_set)/batch_size))
+```
 
 ### Assess Results
 
+This method, using a batch size of 50 and 700000 samples yielded
+
+- Accuracy: 0.797441
+- F1 Score: 0.782857
+
+![Training via Gradient Descent](assets/img/7_03_Refinement_Learning_via_Gradient_Descent.png)
 
 ## Learning through a multi-layer Neural Network
 
@@ -891,21 +918,61 @@ At this point, we hit a wall. The complexity of managing the state of our learne
 
 ## Learning via Random Search followed by Random Local Search
 
-### Establish State of Training Session
-
 ### Assess Results
+
+This method, using a batch size of 50 and 700000 samples yielded
+
+- Accuracy: 0.756756
+- F1 Score: 0.786571
+
+![Training via Random Search](assets/img/7_06_Refinement_Learning_via_Random_Search_followed_by_Random_Local_Search_5_2.png)
+
+- Accuracy: 0.756475
+- F1 Score: 0.786429
+
+![Training via Random Local Search](assets/img/7_06_Refinement_Learning_via_Random_Search_followed_by_Random_Local_Search_7_2.png)
 
 ## Learning via Random Search followed by Gradient Descent
 
-### Establish State of Training Session
-
 ### Assess Results
+
+This method, using a batch size of 50 and 700000 samples yielded
+
+- Accuracy: 0.702685
+- F1 Score: 0.739000
+
+![Training via Random Search](assets/img/7_06_Refinement_Learning_via_Random_Search_followed_by_Random_Local_Search_9_2.png)
+
+- Accuracy: 0.702975
+- F1 Score: 0.739000
+
+![Training via Random Local Search](assets/img/7_06_Refinement_Learning_via_Random_Search_followed_by_Random_Local_Search_11_2.png)
 
 # Results
 
+## Summary of Results
+
+| method | Accuracy | F1 Score |
+|:-:|:-:|:-:|
+| Random Search | 0.803451 | 0.810321 |
+| Random Local Search | 0.590684 | 0.668573 |
+| Gradient Descent | 0.797441 | 0.782857 |
+| Random Search | 0.756756 | 0.786571 |
+| Random Search, Random Local Search | 0.756475 | 0.786429 |
+| Random Search | 0.702685 | 0.739000 |
+| Random Search, Gradient Descent | 0.702975 | 0.739000 |
+
+Our best performance was the original random search. We note, however, that subsequent runs did not perform as well. This is not a method that can be relied upon. Random local search did not perform nearly as well. This may be because the learner merely initialized with a low-performing random weights matrix. Gradient Descent performed quite well.
+
+We then hit upon the idea of using Random Search to identify a "best" random weights matrix then use that as an initialization for further searches. Unfortunately, neither of these performed amazingly well. We suspect that what is happening in these cases is that our trainer has hit a local minimum.
+
 ## Final Model
 
+As a final model, we recommend using the Gradient Descent learner. We note that our system is actually performing stochastic gradient descent with batch sizes of 50. This process can actually be run considerably more times and we would expect to see better results.
+
 ## Benchmark Comparison
+
+We set out to achieve a benchmark of an accuracy of 0.8. We achieved this via our random learner, though subsequent random tests did not perform as well. Our Gradient Descent model very nearly achieved this.
 
 # Conclusion
 

@@ -12,7 +12,7 @@
 
 ## Solution: Infrastructure as Code
 
-Use `docker` and `docker-compose` to define a multi-container system for processing data. 
+Use `docker` and `docker-compose` to define a multi-container system for processing data.
 
 Considering Docker best-practice, one process per container, our system uses the following container types:
 
@@ -60,7 +60,7 @@ bash_webserver:
     docker exec -it $(DIRNAME)_webserver_1 /bin/bash
 
 postgres:
-    docker exec -it $(DIRNAME)_postgres_1 psql postgres postgres 
+    docker exec -it $(DIRNAME)_postgres_1 psql postgres postgres
 
 redis:
     docker exec -it $(DIRNAME)_redis_1 redis-cli

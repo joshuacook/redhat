@@ -42,7 +42,6 @@ def prepare_plot_vectors(test_features, test_target, type='accuracy', length=750
         loss_values.append(get_best_loss())
         sleep(1)
         training_count = get_training_count()
-        print('.', end="")
 
     return training_counts, f1_scores, accuracies, loss_values
 
