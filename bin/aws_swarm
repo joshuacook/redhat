@@ -1,0 +1,17 @@
+docker-machine create -d amazonec2 \
+--swarm --swarm-master \
+--swarm-discovery token://swarm_token
+master-node
+
+docker-machine create -d amazonec2 \
+--swarm --swarm-discovery token://swarm_token \
+node-01
+
+docker-machine create -d amazonec2 \
+--swarm --swarm-discovery token://swarm_token \
+node-02
+
+eval $(docker-machine env --swarm master-node)
+
+http://blog.scottlowe.org/2016/03/25/docker-swarm-aws-docker-machine/
+https://medium.com/on-docker/docker-overlay-networks-that-was-easy-8f24baebb698#.jpowz4l65
