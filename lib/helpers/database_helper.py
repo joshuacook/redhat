@@ -13,9 +13,9 @@ def one_hot_encode_row(action_id):
 
     conn, cur = connect_to_postgres()
     one_hot_vector = zeros(len(one_hot_indices)+1)
-    
+
     one_hot_join_query = """
-    SELECT 
+    SELECT
             a.act_char_1, a.act_char_2, a.act_char_3,
             a.act_char_4, a.act_char_5, a.act_char_6,
             a.act_char_7, a.act_char_8, a.act_char_9,
@@ -33,7 +33,7 @@ def one_hot_encode_row(action_id):
             p.ppl_char_32, p.ppl_char_33, p.ppl_char_34,
             p.ppl_char_35, p.ppl_char_36, p.ppl_char_37,
             p.ppl_char_38
-    FROM action a INNER JOIN people p 
+    FROM action a INNER JOIN people p
     ON a.people_id = p.people_id
     WHERE a.act_id = '{}'
     """.format(action_id)
@@ -56,7 +56,7 @@ def one_hot_encode_row(action_id):
             'ppl_char_35', 'ppl_char_36', 'ppl_char_37']
 
     cur.execute(one_hot_join_query)
-    
+
     res = list(cur.fetchall()[0])
     ppl_char_38 = res.pop()
     labels = [str(col)+'_'+str(re).replace(' ','_') for col,re in zip(cols,res)]
@@ -76,9 +76,9 @@ def one_hot_encode_row(action_id):
     conn.close()
 
     return one_hot_vector
-                
+
 def one_hot_from_table(action_id):
-    
+
     conn, cur = connect_to_postgres()
     cur = conn.cursor()
     cur.execute("""
@@ -109,59 +109,58 @@ def pull_actions(limit=1000, offset = 0, action_type='one-hot'):
 
     if action_type=='one-hot':
         sql = """
-            SELECT act_id FROM action 
-            WHERE act_outcome = True OR act_outcome = False 
-            AND act_one_hot_encoding is NULL 
+            SELECT act_id FROM action
+            WHERE act_outcome = True OR act_outcome = False
+            AND act_one_hot_encoding is NULL
             LIMIT {} OFFSET {};""".format(limit, offset)
     elif action_type == 'training':
         sql = """
-            SELECT act_id FROM action 
-            WHERE act_one_hot_encoding is not NULL 
+            SELECT act_id FROM action
+            WHERE act_one_hot_encoding is not NULL
             LIMIT {} OFFSET {};""".format(limit, offset)
     elif action_type == 'testing':
         sql = """
-            SELECT act_id FROM action 
-            WHERE act_one_hot_encoding is not NULL 
+            SELECT act_id FROM action
+            WHERE act_one_hot_encoding is not NULL
             AND act_outcome is NULL
             LIMIT {} OFFSET {};""".format(limit, offset)
     cur.execute(sql)
     action_ids = [action_id[0] for action_id in cur.fetchall()]
     conn.close()
     return action_ids
-        
-def pull_actions_and_one_hot_encode(limit=1000,offset=0):    
+
+def pull_actions_and_one_hot_encode(limit=1000,offset=0):
     for action_id in pull_actions(limit, offset):
         one_hot_encode_row(action_id)
-        
+
 def pull_and_shape_batch(n=100, offset=0, action_ids=None):
     batch_features = []
     batch_outcomes = []
 
     if not action_ids:
-        action_ids = pull_actions(limit=n, 
+        action_ids = pull_actions(limit=n,
                               offset=offset,
                               action_type='training')
-    
+
     for action in action_ids:
 
         # pull one hot vector and outcome from a row in the database
         this_one_hot_vec, \
             this_outcome = one_hot_and_outcome(action)
 
-        # append a bias     
+        # append a bias
         batch_features.append(append(this_one_hot_vec, ones(1)))
 
         # append one hot vector with bias to the batch
         batch_outcomes.append(this_outcome)
 
-    # convert to numpy arrays    
+    # convert to numpy arrays
     batch_features = array(batch_features)
     batch_outcomes = array(batch_outcomes)
-    return batch_features, batch_outcomes        
+    return batch_features, batch_outcomes
 
-def pull_training_and_test_sets(limit=90000):
+def pull_training_and_test_sets(limit=90000, split=0.8):
     seed(42)
     action_set = pull_actions(limit=limit,action_type='training')
     shuffle(action_set)
-    return action_set[:75000], action_set[75000:]
-    
+    return action_set[:int(limit*split)], action_set[int(limit*split):]

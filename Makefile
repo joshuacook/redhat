@@ -1,6 +1,8 @@
 DIRNAME=redhat
 default: build up
 
+bash_ipython:
+	docker exec -it $(DIRNAME)_jupyter_1 ipython
 bash_jupyter:
 	docker exec -it $(DIRNAME)_jupyter_1 /bin/bash
 
@@ -29,7 +31,7 @@ redis:
 	docker exec -it $(DIRNAME)_redis_1 redis-cli
 
 report:
-	pandoc --template=doc/template.latex doc/report.md -o doc/report.pdf
+	docker run -v $(shell pwd):/source joshuacook/pandoc --template=doc/template.latex doc/report.md -o doc/report.pdf
 
 rm:
 	docker-compose rm

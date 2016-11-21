@@ -17,9 +17,12 @@ def measure_accuracy(prediction, actual):
 
 def measure_f1_score(prediction, actual):
     _, _, _, _, precision, recall = precision_and_recall(prediction, actual)
-    return 2/(1/float(recall) + 1/float(precision))
+    try:
+        return 2/(1/float(recall) + 1/float(precision))
+    except ZeroDivisionError:
+        return 0
 
-    
+
 def correlation_matrix(prediction, actual):
     corr_true, incr_true, corr_fals, incr_fals, _, _ = \
             precision_and_recall(prediction, actual)
@@ -27,7 +30,7 @@ def correlation_matrix(prediction, actual):
     print(
     """
                     act      act
-                   true    false   totals 
+                   true    false   totals
     +------------+-------+-------+-------+
     | pred true  | {:5} | {:5} | {:5} |
     +------------+-------+-------+-------+

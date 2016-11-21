@@ -60,7 +60,18 @@ CREATE TABLE action (
     act_outcome BOOLEAN DEFAULT NULL,
     act_one_hot_encoding BYTEA
 );
-COPY action FROM '/docker-entrypoint-init.d/act_test.csv' HEADER DELIMITER ',' CSV; 
-COPY action FROM '/docker-entrypoint-init.d/act_train_1.csv' HEADER DELIMITER ',' CSV; 
-COPY action FROM '/docker-entrypoint-init.d/act_train_2.csv' HEADER DELIMITER ',' CSV; 
-COPY action FROM '/docker-entrypoint-init.d/act_train_3.csv' HEADER DELIMITER ',' CSV; 
+COPY action (people_id, act_id, act_date, act_category, 
+             act_char_1, act_char_2, act_char_3, act_char_4, 
+             act_char_5, act_char_6, act_char_7, act_char_8, 
+             act_char_9, act_char_10, act_outcome, act_one_hot_encoding) 
+        FROM '/docker-entrypoint-init.d/act_train_1.csv' HEADER DELIMITER ',' CSV; 
+COPY action (people_id, act_id, act_date, act_category, 
+             act_char_1, act_char_2, act_char_3, act_char_4, 
+             act_char_5, act_char_6, act_char_7, act_char_8, 
+             act_char_9, act_char_10, act_outcome, act_one_hot_encoding) 
+        FROM '/docker-entrypoint-init.d/act_train_2.csv' HEADER DELIMITER ',' CSV; 
+COPY action (people_id, act_id, act_date, act_category, 
+             act_char_1, act_char_2, act_char_3, act_char_4, 
+             act_char_5, act_char_6, act_char_7, act_char_8, 
+             act_char_9, act_char_10, act_outcome, act_one_hot_encoding) 
+        FROM '/docker-entrypoint-init.d/act_train_3.csv' HEADER DELIMITER ',' CSV; 
