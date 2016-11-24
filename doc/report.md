@@ -534,7 +534,7 @@ $$\text{precision} = \frac{\text{True Positives}}{\text{True Positive}+\text{Fal
 
 and
 
-$$\text{recall} = \frac{\text{True Positivess}}{\text{True Positives}+\text{False Negatives}}$$
+$$\text{recall} = \frac{\text{True Positives}}{\text{True Positives}+\text{False Negatives}}$$
 
 We will be trying to maximize this value.
 
@@ -948,6 +948,17 @@ This method, using a batch size of 50 and 700000 samples yielded
 
 ![Training via Random Local Search](assets/img/7_06_Refinement_Learning_via_Random_Search_followed_by_Random_Local_Search_11_2.png)
 
+## Learning via Gradient Descent in Multiple Epochs
+
+### Assess Results
+
+This method, using a batch size of 500 and 700000 samples trained in five epochs yielded
+
+- Accuracy: 0.828243
+- F1 Score: 0.824857
+
+![Training via Random Search](assets/img/7_07_Refinement_Learning_via_Gradient_Descent_multiple_Epochs.png)
+
 # Results
 
 ## Summary of Results
@@ -961,14 +972,24 @@ This method, using a batch size of 50 and 700000 samples yielded
 | Random Search, Random Local Search | 0.756475 | 0.786429 |
 | Random Search | 0.702685 | 0.739000 |
 | Random Search, Gradient Descent | 0.702975 | 0.739000 |
+| Gradient Descent, Five Epochs | 0.828243 | 0.824857 |
 
-Our best performance was the original random search. We note, however, that subsequent runs did not perform as well. This is not a method that can be relied upon. Random local search did not perform nearly as well. This may be because the learner merely initialized with a low-performing random weights matrix. Gradient Descent performed quite well.
+Until we ran stochastic gradient descent in multiple epochs, our best performance was the original random search. 
+In running several different methods for training, we note that a single epoch gradient descent performed quite well. 
 
-We then hit upon the idea of using Random Search to identify a "best" random weights matrix then use that as an initialization for further searches. Unfortunately, neither of these performed amazingly well. We suspect that what is happening in these cases is that our trainer has hit a local minimum.
+We then hit upon the idea of using stochastic gradient descent over multiple epochs. We ran over five epochs and hit upon our best results.
 
 ## Final Model
 
-As a final model, we recommend using the Gradient Descent learner. We note that our system is actually performing stochastic gradient descent with batch sizes of 50. This process can actually be run considerably more times and we would expect to see better results.
+As a final model, we recommend using the Gradient Descent learner over multiple epochs. 
+We note that our system is actually performing stochastic gradient descent. We used batch sizes of both 50 and 500. 
+This process can actually be run considerably more times and we would expect to see better results. A next step in this experimental process
+would be to see at what point the process can no longer be improved upon. 
+
+A brief note on our reinforcement learning approach to this task. We note that the accuracy and f1 score metrics are not used in training the 
+learner at all. They are used as external metrics to independently assess the progress of our learner. It is the loss function that is used 
+in the training of the learner and the loss function is never exposed to the test data. We can therefore, reasonably expect that the accuracy 
+and f1 scores would generalize to new data. 
 
 ## Benchmark Comparison
 
