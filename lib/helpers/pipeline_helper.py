@@ -94,7 +94,7 @@ def train_via_gradient_descent(n=100, offset=0, action_ids=None, delta=1.0, gamm
                                   batch_features,
                                   batch_outcomes,
                                   delta=delta)
-    weight_matrix = weight_matrix - grad * step_size
+    weight_matrix = get_weights_matrix() - grad * step_size
     loss = loss_function(weight_matrix,
                          batch_features,
                          batch_outcomes,
